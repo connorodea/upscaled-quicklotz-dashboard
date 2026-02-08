@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/select"
 import { Search, Download, RefreshCw, Package, DollarSign, TrendingUp, ShoppingCart } from "lucide-react"
 import { ProjectionsSkeleton } from "@/components/skeletons"
+import { ExportButton } from "@/components/export-button"
+import { formatCurrencyExport, formatNumberExport } from "@/lib/export"
 import {
   BarChart,
   Bar,
@@ -284,14 +286,32 @@ export function LineItemsContent() {
             <Download className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
-          <button
-            onClick={fetchData}
-            disabled={refreshing}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
-          >
-            <RefreshCw className={refreshing ? "animate-spin" : ""} />
-            {refreshing ? "Refreshing..." : "Refresh"}
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportButton
+              data={filteredItems}
+              columns={[
+                { key: "orderId", header: "Order ID" },
+                { key: "updBbyId", header: "UPD-BBY ID" },
+                { key: "title", header: "Title" },
+                { key: "category", header: "Category" },
+                { key: "brands", header: "Brands" },
+                { key: "condition", header: "Condition" },
+                { key: "msrp", header: "MSRP", format: formatCurrencyExport },
+                { key: "allInCost", header: "All-in Cost", format: formatCurrencyExport },
+                { key: "itemCount", header: "Item Count", format: formatNumberExport },
+                { key: "palletCount", header: "Pallets", format: formatNumberExport },
+              ]}
+              filename="line-items"
+            />
+            <button
+              onClick={fetchData}
+              disabled={refreshing}
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
+            >
+              <RefreshCw className={refreshing ? "animate-spin" : ""} />
+              {refreshing ? "Refreshing..." : "Refresh"}
+            </button>
+          </div>
         </div>
       </div>
 
