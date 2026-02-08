@@ -14,8 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Search, Filter, Download, Loader2 } from "lucide-react"
+import { Search, Filter, Loader2 } from "lucide-react"
 import { InvoicesSkeleton } from "@/components/skeletons"
+import { ExportButton } from "@/components/export-button"
+import { formatCurrencyExport, formatDateExport } from "@/lib/export"
 import { Button } from "@/components/ui/button"
 
 interface Invoice {
@@ -221,10 +223,21 @@ export function InvoicesContent() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Invoices</h1>
         </div>
-        <Button variant="outline" size="sm">
-          <Download className="mr-2 h-4 w-4" />
-          Export
-        </Button>
+        <ExportButton
+            data={filteredInvoices}
+            columns={[
+              { key: "invoiceNumber", header: "Invoice #" },
+              { key: "orderId", header: "Order ID" },
+              { key: "invoiceDate", header: "Invoice Date" },
+              { key: "dueDate", header: "Due Date" },
+              { key: "totalDue", header: "Total Due", format: formatCurrencyExport },
+              { key: "paymentsApplied", header: "Payments Applied", format: formatCurrencyExport },
+              { key: "status", header: "Status" },
+              { key: "palletCount", header: "Pallets" },
+              { key: "eta", header: "ETA" },
+            ]}
+            filename="invoices"
+          />
       </div>
 
       

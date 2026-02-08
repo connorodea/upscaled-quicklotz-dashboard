@@ -25,6 +25,8 @@ import {
   Truck
 } from "lucide-react"
 import { OrdersSkeleton } from "@/components/skeletons"
+import { ExportButton } from "@/components/export-button"
+import { formatCurrencyExport, formatDateExport, formatNumberExport, formatPercentExport } from "@/lib/export"
 import {
   BarChart,
   Bar,
@@ -213,14 +215,33 @@ export function OrdersContent() {
               Track and analyze all sourcing orders
             </p>
           </div>
-          <button
-            onClick={fetchData}
-            disabled={refreshing}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? 'Refreshing...' : 'Refresh'}
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportButton
+              data={filteredOrders}
+              columns={[
+                { key: "orderId", header: "Order ID" },
+                { key: "date", header: "Date", format: formatDateExport },
+                { key: "status", header: "Status" },
+                { key: "totalMSRP", header: "Total MSRP", format: formatCurrencyExport },
+                { key: "totalAllIn", header: "All-in Cost", format: formatCurrencyExport },
+                { key: "percentOfMSRP", header: "% of MSRP", format: formatPercentExport },
+                { key: "totalItems", header: "Items", format: formatNumberExport },
+                { key: "totalPallets", header: "Pallets", format: formatNumberExport },
+                { key: "carrier", header: "Carrier" },
+                { key: "trackingNumber", header: "Tracking #" },
+                { key: "eta", header: "ETA", format: formatDateExport },
+              ]}
+              filename="orders"
+            />
+            <button
+              onClick={fetchData}
+              disabled={refreshing}
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
         </div>
 
         
