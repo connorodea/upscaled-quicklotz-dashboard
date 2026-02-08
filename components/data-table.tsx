@@ -24,6 +24,7 @@ interface DataTableProps<T> {
   data: T[]
   onRowClick?: (row: T) => void
   className?: string
+  getRowClassName?: (row: T, index: number) => string
 }
 
 export function DataTable<T extends Record<string, unknown>>({
@@ -31,6 +32,7 @@ export function DataTable<T extends Record<string, unknown>>({
   data,
   onRowClick,
   className,
+  getRowClassName,
 }: DataTableProps<T>) {
   return (
     <div className={cn("overflow-hidden rounded-lg border border-border", className)}>
@@ -66,7 +68,8 @@ export function DataTable<T extends Record<string, unknown>>({
                 key={rowIndex}
                 className={cn(
                   "border-border transition-colors",
-                  onRowClick && "cursor-pointer hover:bg-muted/50"
+                  onRowClick && "cursor-pointer hover:bg-muted/50",
+                  getRowClassName?.(row, rowIndex)
                 )}
                 onClick={() => onRowClick?.(row)}
               >

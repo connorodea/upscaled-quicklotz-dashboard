@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import {
   BarChart,
   Bar,
@@ -16,12 +17,6 @@ import {
   Legend,
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  categoryBreakdown,
-  ordersOverTime,
-  orderStatusBreakdown,
-  recoveryScenarios,
-} from "@/lib/mock-data"
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", {
@@ -39,6 +34,31 @@ const COLORS = [
 ]
 
 export function RecoveryScenariosChart() {
+  const [data, setData] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch("/api/orders")
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success && result.orders) {
+          const totalMSRP = result.orders.reduce((sum: number, order: any) => sum + order.totalMSRP, 0)
+          const totalAllIn = result.orders.reduce((sum: number, order: any) => sum + order.totalAllIn, 0)
+
+          const scenarios = [15, 18, 20, 25].map((rate) => {
+            const expectedRecovery = totalMSRP * (rate / 100)
+            const grossProfit = expectedRecovery - totalAllIn
+            return {
+              rate,
+              expectedRecovery,
+              grossProfit,
+            }
+          })
+
+          setData(scenarios)
+        }
+      })
+  }, [])
+
   return (
     <Card className="border-border bg-card">
       <CardHeader className="pb-2">
@@ -49,7 +69,7 @@ export function RecoveryScenariosChart() {
       <CardContent>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={recoveryScenarios} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.25 0.02 260)" />
               <XAxis
                 dataKey="rate"
@@ -64,7 +84,7 @@ export function RecoveryScenariosChart() {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "oklch(0.18 0.02 260)",
+                  backgroundColor: "oklch(0.18 0.02 260)", color: "oklch(0.95 0.01 260)",
                   border: "1px solid oklch(0.25 0.02 260)",
                   borderRadius: "8px",
                 }}
@@ -83,6 +103,38 @@ export function RecoveryScenariosChart() {
 }
 
 export function CategoryMixChart() {
+  const [data, setData] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch("/api/line-items")
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success && result.lineItems) {
+          const categoryMap: Record<string, { totalMSRP: number; totalAllIn: number }> = {}
+
+          result.lineItems.forEach((item: any) => {
+            const category = item.category || "General Merchandise"
+            if (!categoryMap[category]) {
+              categoryMap[category] = { totalMSRP: 0, totalAllIn: 0 }
+            }
+            categoryMap[category].totalMSRP += item.msrp || 0
+            categoryMap[category].totalAllIn += item.allInCost || 0
+          })
+
+          const chartData = Object.entries(categoryMap)
+            .map(([category, values]) => ({
+              category,
+              totalMSRP: values.totalMSRP,
+              totalAllIn: values.totalAllIn,
+            }))
+            .sort((a, b) => b.totalMSRP - a.totalMSRP)
+            .slice(0, 10)
+
+          setData(chartData)
+        }
+      })
+  }, [])
+
   return (
     <Card className="border-border bg-card">
       <CardHeader className="pb-2">
@@ -94,9 +146,9 @@ export function CategoryMixChart() {
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={categoryBreakdown}
+              data={data}
               layout="vertical"
-              margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
+              margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.25 0.02 260)" />
               <XAxis
@@ -109,11 +161,12 @@ export function CategoryMixChart() {
                 type="category"
                 dataKey="category"
                 stroke="oklch(0.65 0.01 260)"
-                fontSize={12}
+                fontSize={11}
+                width={110}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "oklch(0.18 0.02 260)",
+                  backgroundColor: "oklch(0.18 0.02 260)", color: "oklch(0.95 0.01 260)",
                   border: "1px solid oklch(0.25 0.02 260)",
                   borderRadius: "8px",
                 }}
@@ -131,8 +184,42 @@ export function CategoryMixChart() {
 }
 
 export function OrdersOverTimeChart() {
+  const [data, setData] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch("/api/orders")
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success && result.orders) {
+          // Group orders by date
+          const dateMap: Record<string, { totalMSRP: number; totalAllIn: number }> = {}
+
+          result.orders.forEach((order: any) => {
+            const date = order.date || order.orderDate
+            if (!date) return
+
+            if (!dateMap[date]) {
+              dateMap[date] = { totalMSRP: 0, totalAllIn: 0 }
+            }
+            dateMap[date].totalMSRP += order.totalMSRP || 0
+            dateMap[date].totalAllIn += order.totalAllIn || 0
+          })
+
+          const chartData = Object.entries(dateMap)
+            .map(([date, values]) => ({
+              date,
+              totalMSRP: values.totalMSRP,
+              totalAllIn: values.totalAllIn,
+            }))
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+          setData(chartData)
+        }
+      })
+  }, [])
+
   return (
-    <Card className="border-border bg-card lg:col-span-2">
+    <Card className="border-border bg-card">
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-semibold text-card-foreground">
           Orders Over Time
@@ -141,11 +228,17 @@ export function OrdersOverTimeChart() {
       <CardContent>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={ordersOverTime} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.25 0.02 260)" />
               <XAxis
                 dataKey="date"
-                tickFormatter={(v) => new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                tickFormatter={(v) => {
+                  try {
+                    return new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                  } catch {
+                    return v
+                  }
+                }}
                 stroke="oklch(0.65 0.01 260)"
                 fontSize={12}
               />
@@ -156,11 +249,17 @@ export function OrdersOverTimeChart() {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "oklch(0.18 0.02 260)",
+                  backgroundColor: "oklch(0.18 0.02 260)", color: "oklch(0.95 0.01 260)",
                   border: "1px solid oklch(0.25 0.02 260)",
                   borderRadius: "8px",
                 }}
-                labelFormatter={(v) => new Date(v).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                labelFormatter={(v) => {
+                  try {
+                    return new Date(v).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+                  } catch {
+                    return v
+                  }
+                }}
                 formatter={(value: number) => [formatCurrency(value), ""]}
               />
               <Legend />
@@ -191,6 +290,32 @@ export function OrdersOverTimeChart() {
 }
 
 export function OrderStatusChart() {
+  const [data, setData] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch("/api/orders")
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success && result.orders) {
+          const statusMap: Record<string, number> = {}
+
+          result.orders.forEach((order: any) => {
+            const status = order.status || "Unknown"
+            statusMap[status] = (statusMap[status] || 0) + 1
+          })
+
+          const total = result.orders.length
+          const chartData = Object.entries(statusMap).map(([status, count]) => ({
+            status,
+            count,
+            percentage: total > 0 ? ((count / total) * 100).toFixed(1) : "0.0",
+          }))
+
+          setData(chartData)
+        }
+      })
+  }, [])
+
   return (
     <Card className="border-border bg-card">
       <CardHeader className="pb-2">
@@ -203,7 +328,7 @@ export function OrderStatusChart() {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={orderStatusBreakdown}
+                data={data}
                 cx="50%"
                 cy="50%"
                 innerRadius={50}
@@ -214,13 +339,13 @@ export function OrderStatusChart() {
                 label={({ status, percentage }) => `${status} (${percentage}%)`}
                 labelLine={false}
               >
-                {orderStatusBreakdown.map((_, index) => (
+                {data.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "oklch(0.18 0.02 260)",
+                  backgroundColor: "oklch(0.18 0.02 260)", color: "oklch(0.95 0.01 260)",
                   border: "1px solid oklch(0.25 0.02 260)",
                   borderRadius: "8px",
                 }}

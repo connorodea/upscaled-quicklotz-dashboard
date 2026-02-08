@@ -1,0 +1,1481 @@
+{
+  "fetched_at": "2026-01-28T21:50:12.542497Z",
+  "source_urls": [
+    "https://www.techliquidators.com/orders/",
+    "https://www.techliquidators.com/orders/?page=1",
+    "https://www.techliquidators.com/orders/?page=2"
+  ],
+  "orders": [
+    {
+      "date": "January 28, 2026",
+      "order_id": "C9RK6XWYL7",
+      "total": 3869.32,
+      "ship_to": "2820 N Great Southwest Pkwy, Grand Prairie, TX 75050",
+      "status": "Pending Payment",
+      "items": [
+        {
+          "title": "Camera Accessories, Computer Accessories, More Home Goods - Digipower, Sunpak, Polaroid - Orig. Retail $13,399",
+          "msrp": 13399.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Pallet",
+          "item_count": 209,
+          "price": 798.0,
+          "pallet_ids": []
+        },
+        {
+          "title": "Vacuums & Floorcare, Home Improvement - iRobot, BISSELL, Shark - Orig. Retail $28,292",
+          "msrp": 28292.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 51,
+          "price": 604.0,
+          "pallet_ids": [
+            "PTRD16064",
+            "PTRF99693",
+            "PTRF99679"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $16,574",
+          "msrp": 16574.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 34,
+          "price": 331.0,
+          "pallet_ids": [
+            "PTRD16081",
+            "PTRF56034"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $17,222",
+          "msrp": 17222.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 34,
+          "price": 344.0,
+          "pallet_ids": [
+            "PTRD16051",
+            "PTRF55549"
+          ]
+        },
+        {
+          "title": "Vacuums & Floorcare, Home Improvement - iRobot, Shark, BISSELL - Orig. Retail $31,798",
+          "msrp": 31798.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 47,
+          "price": 665.0,
+          "pallet_ids": [
+            "PTRG14625",
+            "PTRG14598",
+            "PTRG21545"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/C9RK6XWYL7/manifest.xlsx",
+      "shipped_via": [
+        "Tracking #:"
+      ],
+      "tracking_numbers": []
+    },
+    {
+      "date": "January 28, 2026",
+      "order_id": "9C23JZ6WMF",
+      "total": 3417.98,
+      "ship_to": "2820 N Great Southwest Pkwy, Grand Prairie, TX 75050",
+      "status": "Pending Payment",
+      "items": [
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $17,934",
+          "msrp": 17934.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 32,
+          "price": 359.0,
+          "pallet_ids": [
+            "PTRG21560",
+            "PTRG14525"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $18,740",
+          "msrp": 18740.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 34,
+          "price": 375.0,
+          "pallet_ids": [
+            "PTRF99505",
+            "PTRG20769"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $19,623",
+          "msrp": 19623.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 40,
+          "price": 392.0,
+          "pallet_ids": [
+            "PTRF99534",
+            "PTRG20855"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $19,600",
+          "msrp": 19600.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 40,
+          "price": 392.0,
+          "pallet_ids": [
+            "PTRG14538",
+            "PTRG14542"
+          ]
+        },
+        {
+          "title": "Vacuums & Floorcare, More General Merchandise, Home Improvement - iRobot, Shark, BISSELL - Orig. Retail $38,055",
+          "msrp": 38055.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 60,
+          "price": 773.0,
+          "pallet_ids": [
+            "PTRG14577",
+            "PTRF99629",
+            "PTRD16071"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/9C23JZ6WMF/manifest.xlsx"
+    },
+    {
+      "date": "January 27, 2026",
+      "order_id": "ZTGKEW3QCH",
+      "total": 1811.93,
+      "ship_to": "2820 N Great Southwest Pkwy, Grand Prairie, TX 75050",
+      "status": "Pending Payment",
+      "items": [
+        {
+          "title": "Small Appliances, Appliance Accessories, Personal Care - bella PRO, Bella, Ninja - Orig. Retail $16,554",
+          "msrp": 16554.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 118,
+          "price": 250.0,
+          "pallet_ids": [
+            "PTRG22435",
+            "PTRG22425",
+            "PTRG22398"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Health & Nutrition - bella PRO, Bella, Smart Choice - Orig. Retail $12,243",
+          "msrp": 12243.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 101,
+          "price": 185.0,
+          "pallet_ids": [
+            "PTRF54501",
+            "PTRG21697",
+            "PTRG22302"
+          ]
+        },
+        {
+          "title": "Soundbars - Insignia - Orig. Retail $2,940",
+          "msrp": 2940.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Pallet",
+          "item_count": 25,
+          "price": 59.0,
+          "pallet_ids": []
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Personal Care - bella PRO, Bella, Smart Choice - Orig. Retail $13,123",
+          "msrp": 13123.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 115,
+          "price": 195.0,
+          "pallet_ids": [
+            "PTRF43478",
+            "PTRG20542",
+            "PTRD05460"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/ZTGKEW3QCH/manifest.xlsx",
+      "shipped_via": [
+        "Tracking #:"
+      ],
+      "tracking_numbers": []
+    },
+    {
+      "date": "January 26, 2026",
+      "order_id": "J3HLQCM7T6",
+      "total": 2025.15,
+      "ship_to": "2820 N Great Southwest Pkwy, Grand Prairie, TX 75050",
+      "status": "Pending Payment",
+      "items": [
+        {
+          "title": "Small Appliances, Appliance Accessories, Personal Care - bella PRO, Smart Choice, Bella - Orig. Retail $14,398",
+          "msrp": 14398.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 124,
+          "price": 215.0,
+          "pallet_ids": [
+            "PTRD19617",
+            "PTRF54508",
+            "PTRF54511"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Health & Nutrition - bella PRO, Bella, Smart Choice - Orig. Retail $12,506",
+          "msrp": 12506.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 93,
+          "price": 185.0,
+          "pallet_ids": [
+            "PTRG21305",
+            "PTRG21312",
+            "PTRG21329"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Health & Nutrition - bella PRO, Ninja, Smart Choice - Orig. Retail $11,674",
+          "msrp": 11674.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 82,
+          "price": 175.0,
+          "pallet_ids": [
+            "PTRF54507",
+            "PTRG22414",
+            "PTRG20540"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $16,351",
+          "msrp": 16351.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 29,
+          "price": 327.0,
+          "pallet_ids": [
+            "PTRG20742",
+            "PTRG20719"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/J3HLQCM7T6/manifest.xlsx"
+    },
+    {
+      "date": "January 26, 2026",
+      "order_id": "2JGYWTXNZP",
+      "total": 2366.37,
+      "ship_to": "2820 N Great Southwest Pkwy, Grand Prairie, TX 75050",
+      "status": "Pending Payment",
+      "items": [
+        {
+          "title": "Small Appliances, Appliance Accessories, Personal Care - bella PRO, Bella, Ninja - Orig. Retail $11,750",
+          "msrp": 11750.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 84,
+          "price": 175.0,
+          "pallet_ids": [
+            "PTRG21316",
+            "PTRG22290",
+            "PTRF43462"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Health & Nutrition - bella PRO, Ninja, Bella - Orig. Retail $14,267",
+          "msrp": 14267.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 102,
+          "price": 215.0,
+          "pallet_ids": [
+            "PTRG21518",
+            "PTRG21309",
+            "PTRG22267"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Health & Nutrition - bella PRO, Ember, Bella - Orig. Retail $15,622",
+          "msrp": 15622.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 110,
+          "price": 230.0,
+          "pallet_ids": [
+            "PTRG22494",
+            "PTRG22297",
+            "PTRD05458"
+          ]
+        },
+        {
+          "title": "Camera Accessories, Computer Accessories, More Home Goods - Digipower, Sunpak, Insignia - Orig. Retail $10,319",
+          "msrp": 10319.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Pallet",
+          "item_count": 156,
+          "price": 623.0,
+          "pallet_ids": []
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/2JGYWTXNZP/manifest.xlsx",
+      "shipped_via": [
+        "Tracking #:"
+      ],
+      "tracking_numbers": []
+    },
+    {
+      "date": "January 26, 2026",
+      "order_id": "KH2ZEQPGYL",
+      "total": 2129.46,
+      "ship_to": "2820 N Great Southwest Pkwy, Grand Prairie, TX 75050",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $18,066",
+          "msrp": 18066.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 33,
+          "price": 361.0,
+          "pallet_ids": [
+            "PTRF99583",
+            "PTRF99559"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Personal Care - bella PRO, Smart Choice, Ninja - Orig. Retail $13,263",
+          "msrp": 13263.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 102,
+          "price": 200.0,
+          "pallet_ids": [
+            "PTRG21317",
+            "PTRG21274",
+            "PTRD09465"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Health & Nutrition - bella PRO, Smart Choice, Bella - Orig. Retail $15,146",
+          "msrp": 15146.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 126,
+          "price": 225.0,
+          "pallet_ids": [
+            "PTRG21284",
+            "PTRG20534",
+            "PTRF50388"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Health & Nutrition - bella PRO, Smart Choice, Ninja - Orig. Retail $14,788",
+          "msrp": 14788.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 108,
+          "price": 220.0,
+          "pallet_ids": [
+            "PTRF43456",
+            "PTRG21314",
+            "PTRG22295"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/KH2ZEQPGYL/manifest.xlsx",
+      "tracking_numbers": [
+        "613086095"
+      ],
+      "shipped_via": [
+        "TForce"
+      ]
+    },
+    {
+      "date": "January 23, 2026",
+      "order_id": "L2MPZRFQ7X",
+      "total": 2366.69,
+      "ship_to": "2820 N Great Southwest Pkwy, Grand Prairie, TX 75050",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Small Appliances, Appliance Accessories, Personal Care - bella PRO, Smart Choice, AquaSonic - Orig. Retail $18,582",
+          "msrp": 18582.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 126,
+          "price": 464.0,
+          "pallet_ids": [
+            "PTRG20879",
+            "PTRG22416",
+            "PTRF44427"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Health & Nutrition - bella PRO, Smart Choice, Bella - Orig. Retail $14,590",
+          "msrp": 14590.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 111,
+          "price": 215.0,
+          "pallet_ids": [
+            "PTRD10511",
+            "PTRD10523",
+            "PTRG20545"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $18,728",
+          "msrp": 18728.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 38,
+          "price": 375.0,
+          "pallet_ids": [
+            "PTRF99601",
+            "PTRF99632"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Large Appliances - bella PRO, Ninja, Bella - Orig. Retail $12,773",
+          "msrp": 12773.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 96,
+          "price": 190.0,
+          "pallet_ids": [
+            "PTRG22470",
+            "PTRG22299",
+            "PTRG22284"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/L2MPZRFQ7X/manifest.xlsx",
+      "tracking_numbers": [
+        "613086600"
+      ],
+      "shipped_via": [
+        "TForce"
+      ]
+    },
+    {
+      "date": "January 23, 2026",
+      "order_id": "JE692CTWYR",
+      "total": 3827.44,
+      "ship_to": "2820 N Great Southwest Pkwy, Grand Prairie, TX 75050",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Camera Accessories, Computer Accessories, More Home Goods - Digipower, Sunpak, GoPro - Orig. Retail $11,236",
+          "msrp": 11236.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Pallet",
+          "item_count": 181,
+          "price": 327.0,
+          "pallet_ids": []
+        },
+        {
+          "title": "Home Theater Accessories, Home Monitoring & Automation, Computer Accessories - Insignia, Best Buy essentials, Sanus - Orig. Retail $11,242",
+          "msrp": 11242.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Pallet",
+          "item_count": 139,
+          "price": 192.0,
+          "pallet_ids": []
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $30,743",
+          "msrp": 30743.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 61,
+          "price": 615.0,
+          "pallet_ids": [
+            "PTRF68386",
+            "PTRF68381",
+            "PTRF68360"
+          ]
+        },
+        {
+          "title": "Vacuums & Floorcare, Home Improvement - iRobot, Shark, BISSELL - Orig. Retail $49,445",
+          "msrp": 49445.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 69,
+          "price": 1031.0,
+          "pallet_ids": [
+            "PTRF33576",
+            "PTRF33656",
+            "PTRF63458"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $27,322",
+          "msrp": 27322.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 51,
+          "price": 546.0,
+          "pallet_ids": [
+            "PTRF68355",
+            "PTRF68349",
+            "PTRF68436"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/JE692CTWYR/manifest.xlsx",
+      "shipped_via": [
+        "TFORCE",
+        "TForce"
+      ],
+      "tracking_numbers": [
+        "493578886"
+      ]
+    },
+    {
+      "date": "January 22, 2026",
+      "order_id": "XEZ7TJR2PN",
+      "total": 2013.55,
+      "ship_to": "2820 N Great Southwest Pkwy, Grand Prairie, TX 75050",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Small Appliances, Personal Care, Health & Nutrition - bella PRO, Bella, Instant Pot - Orig. Retail $13,084",
+          "msrp": 13084.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 101,
+          "price": 195.0,
+          "pallet_ids": [
+            "PTRF55580",
+            "PTRF55583",
+            "PTRD10580"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $13,771",
+          "msrp": 13771.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 26,
+          "price": 275.0,
+          "pallet_ids": [
+            "PTRF99522",
+            "PTRG20827"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Personal Care - bella PRO, Bella, Ninja - Orig. Retail $14,333",
+          "msrp": 14333.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 103,
+          "price": 215.0,
+          "pallet_ids": [
+            "PTRD10518",
+            "PTRG21323",
+            "PTRG21280"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Personal Care - bella PRO, Smart Choice, Bella - Orig. Retail $13,638",
+          "msrp": 13638.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 111,
+          "price": 205.0,
+          "pallet_ids": [
+            "PTRG22420",
+            "PTRG22419",
+            "PTRF43457"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/XEZ7TJR2PN/manifest.xlsx",
+      "tracking_numbers": [
+        "613085270"
+      ],
+      "shipped_via": [
+        "TForce"
+      ]
+    },
+    {
+      "date": "January 22, 2026",
+      "order_id": "YWJ2ZNQPLG",
+      "total": 2142.53,
+      "ship_to": "2820 N Great Southwest Pkwy, Grand Prairie, TX 75050",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Small Appliances, Appliance Accessories, Health & Nutrition - bella PRO, Smart Choice, Ninja - Orig. Retail $13,364",
+          "msrp": 13364.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 94,
+          "price": 200.0,
+          "pallet_ids": [
+            "PTRG22325",
+            "PTRD05469",
+            "PTRD05446"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $15,970",
+          "msrp": 15970.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 28,
+          "price": 319.0,
+          "pallet_ids": [
+            "PTRG20760",
+            "PTRG20750"
+          ]
+        },
+        {
+          "title": "Small Appliances, Personal Care, Appliance Accessories - bella PRO, AquaSonic, Ninja - Orig. Retail $16,307",
+          "msrp": 16307.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 135,
+          "price": 245.0,
+          "pallet_ids": [
+            "PTRG22326",
+            "PTRG22346",
+            "PTRG22289"
+          ]
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Health & Nutrition - bella PRO, Ninja, Instant Pot - Orig. Retail $17,056",
+          "msrp": 17056.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Your cart has 0 lots",
+          "item_count": 115,
+          "price": 255.0,
+          "pallet_ids": [
+            "PTRG22333",
+            "PTRG22330",
+            "PTRD05480"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/YWJ2ZNQPLG/manifest.xlsx",
+      "tracking_numbers": [
+        "613086692"
+      ],
+      "shipped_via": [
+        "TForce"
+      ]
+    },
+    {
+      "date": "January 21, 2026",
+      "order_id": "ZRP9FEXHY3",
+      "total": 2857.23,
+      "ship_to": "4500 Cambridge Road Suite 100, Fort Worth, TX 76155",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Vacuums & Floorcare, Home Improvement - iRobot, Shark, BISSELL - Orig. Retail $27,546",
+          "msrp": 27546.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 47,
+          "price": 596.0,
+          "pallet_ids": [
+            "PTRG20744",
+            "PTRG21052",
+            "PTRG22091"
+          ]
+        },
+        {
+          "title": "Vacuums & Floorcare, Home Improvement - iRobot, Shark, LG - Orig. Retail $30,881",
+          "msrp": 30881.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 50,
+          "price": 678.0,
+          "pallet_ids": [
+            "PTRG21646",
+            "PTRF99530",
+            "PTRG21193"
+          ]
+        },
+        {
+          "title": "Vacuums & Floorcare, Home Improvement - iRobot, Shark, BISSELL - Orig. Retail $31,558",
+          "msrp": 31558.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 52,
+          "price": 500.0,
+          "pallet_ids": [
+            "PTRF99663",
+            "PTRF99503",
+            "PTRG21020"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/ZRP9FEXHY3/manifest.xlsx",
+      "tracking_numbers": [
+        "613065714"
+      ],
+      "shipped_via": [
+        "TForce"
+      ]
+    },
+    {
+      "date": "January 20, 2026",
+      "order_id": "97EMCK2TL3",
+      "total": 3651.37,
+      "ship_to": "4500 Cambridge Road Suite 100, Fort Worth, TX 76155",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Vacuums & Floorcare, Home Improvement - iRobot, Shark, BISSELL - Orig. Retail $38,235",
+          "msrp": 38235.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 50,
+          "price": 777.0,
+          "pallet_ids": [
+            "PTRF33591",
+            "PTRF33594",
+            "PTRF87577"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $27,819",
+          "msrp": 27819.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 59,
+          "price": 556.0,
+          "pallet_ids": [
+            "PTRF86881",
+            "PTRF86914",
+            "PTRF86917"
+          ]
+        },
+        {
+          "title": "Vacuums & Floorcare, Home Improvement - iRobot, Shark, Dyson - Orig. Retail $44,693",
+          "msrp": 44693.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 68,
+          "price": 1136.0,
+          "pallet_ids": [
+            "PTRF68611",
+            "PTRF90068",
+            "PTRF86799"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/97EMCK2TL3/manifest.xlsx",
+      "tracking_numbers": [
+        "404683996"
+      ],
+      "shipped_via": [
+        "XPO"
+      ]
+    },
+    {
+      "date": "January 19, 2026",
+      "order_id": "RK3TYLJ6WE",
+      "total": 3061.64,
+      "ship_to": "4500 Cambridge Road Suite 100, Fort Worth, TX 76155",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Vacuums & Floorcare, Home Improvement - iRobot, Dyson, Samsung - Orig. Retail $30,782",
+          "msrp": 30782.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 43,
+          "price": 625.0,
+          "pallet_ids": [
+            "PTRC75388",
+            "PTRG20663",
+            "PTRG21156"
+          ]
+        },
+        {
+          "title": "Vacuums & Floorcare, Home Improvement - iRobot, Shark, Dyson - Orig. Retail $32,476",
+          "msrp": 32476.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 49,
+          "price": 686.0,
+          "pallet_ids": [
+            "PTRG20715",
+            "PTRG20595",
+            "PTRG21212"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $18,173",
+          "msrp": 18173.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 39,
+          "price": 363.0,
+          "pallet_ids": [
+            "PTRG20798",
+            "PTRG20706"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $15,360",
+          "msrp": 15360.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 27,
+          "price": 307.0,
+          "pallet_ids": [
+            "PTRF99572",
+            "PTRG20839"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/RK3TYLJ6WE/manifest.xlsx",
+      "tracking_numbers": [
+        "613065261"
+      ],
+      "shipped_via": [
+        "TForce"
+      ]
+    },
+    {
+      "date": "January 15, 2026",
+      "order_id": "PG3LJQCFE9",
+      "total": 6398.21,
+      "ship_to": "4500 Cambridge Road Suite 100, Fort Worth, TX 76155",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Toys & Games, More General Merchandise - LEGO, Konami, Panini - Orig. Retail $17,659",
+          "msrp": 17659.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 371,
+          "price": 1763.0,
+          "pallet_ids": [
+            "PTRF68609",
+            "PTRF90206"
+          ]
+        },
+        {
+          "title": "Home Theater Audio, Speakers, Headphones - Victrola, Insignia, JBL - Orig. Retail $15,394",
+          "msrp": 15394.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 134,
+          "price": 1191.0,
+          "pallet_ids": [
+            "PTRF64217",
+            "PTRF68649"
+          ]
+        },
+        {
+          "title": "Small Appliances, Personal Care, Appliance Accessories - bella PRO, Bella, Laifen - Orig. Retail $29,128",
+          "msrp": 29128.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 212,
+          "price": 2261.0,
+          "pallet_ids": [
+            "PTRF89650",
+            "PTRF89260",
+            "PTRF89263",
+            "PTRF68605",
+            "PTRF89013",
+            "PTRF89341"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/PG3LJQCFE9/manifest.xlsx",
+      "tracking_numbers": [
+        "495566783"
+      ],
+      "shipped_via": [
+        "TForce"
+      ]
+    },
+    {
+      "date": "January 14, 2026",
+      "order_id": "Z9M6YNQTFP",
+      "total": 3442.6,
+      "ship_to": "4500 Cambridge Road Suite 100, Fort Worth, TX 76155",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Vacuums & Floorcare, Home Improvement, More General Merchandise - iRobot, Shark, BISSELL - Orig. Retail $31,994",
+          "msrp": 31994.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 49,
+          "price": 656.0,
+          "pallet_ids": [
+            "PTRG20814",
+            "PTRG20799",
+            "PTRF44266"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $30,318",
+          "msrp": 30318.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 56,
+          "price": 606.0,
+          "pallet_ids": [
+            "PTRF86921",
+            "PTRF33735",
+            "PTRF87307"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $31,444",
+          "msrp": 31444.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 60,
+          "price": 629.0,
+          "pallet_ids": [
+            "PTRF67509",
+            "PTRF67505",
+            "PTRF33719"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/Z9M6YNQTFP/manifest.xlsx",
+      "tracking_numbers": [
+        "613065574"
+      ],
+      "shipped_via": [
+        "TForce"
+      ]
+    },
+    {
+      "date": "January 13, 2026",
+      "order_id": "CFXPM2KETL",
+      "total": 4611.47,
+      "ship_to": "4500 Cambridge Road Suite 100, Fort Worth, TX 76155",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Small Appliances, Appliance Accessories, Personal Care - bella PRO, Smart Choice, Ninja - Orig. Retail $37,899",
+          "msrp": 37899.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 266,
+          "price": 2925.0,
+          "pallet_ids": [
+            "PTRF70378",
+            "PTRF70358",
+            "PTRF70466",
+            "PTRF66643",
+            "PTRF66848",
+            "PTRF69855"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $27,062",
+          "msrp": 27062.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 52,
+          "price": 541.0,
+          "pallet_ids": [
+            "PTRF67580",
+            "PTRF67541",
+            "PTRF67555"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/CFXPM2KETL/manifest.xlsx",
+      "tracking_numbers": [
+        "404682294"
+      ],
+      "shipped_via": [
+        "XPO"
+      ]
+    },
+    {
+      "date": "January 13, 2026",
+      "order_id": "2PEN9YCJKG",
+      "total": 4639.78,
+      "ship_to": "4500 Cambridge Road Suite 100, Fort Worth, TX 76155",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $27,639",
+          "msrp": 27639.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 60,
+          "price": 553.0,
+          "pallet_ids": [
+            "PTRF89669",
+            "PTRF67515",
+            "PTRF67521"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $30,986",
+          "msrp": 30986.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 62,
+          "price": 620.0,
+          "pallet_ids": [
+            "PTRF67517",
+            "PTRF67543",
+            "PTRF67549"
+          ]
+        },
+        {
+          "title": "Vacuums & Floorcare, Home Improvement, More General Merchandise - iRobot, Tineco, LG - Orig. Retail $46,369",
+          "msrp": 46369.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 63,
+          "price": 2285.0,
+          "pallet_ids": [
+            "PTRF91236",
+            "PTRF90218",
+            "PTRF89698"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/2PEN9YCJKG/manifest.xlsx",
+      "tracking_numbers": [
+        "404682353"
+      ],
+      "shipped_via": [
+        "XPO"
+      ]
+    },
+    {
+      "date": "January 10, 2026",
+      "order_id": "QGYLKFXT7M",
+      "total": 3938.15,
+      "ship_to": "35468 Groesbeck Hwy, Clinton Township, MI 48035",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Camera Accessories, Computer Accessories, More Home Goods - Insignia, Digipower, Sunpak - Orig. Retail $15,997",
+          "msrp": 15997.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Pallet",
+          "item_count": 247,
+          "price": 225.0,
+          "pallet_ids": []
+        },
+        {
+          "title": "Small Appliances, Appliance Accessories, Health & Nutrition - bella PRO, Smart Choice, Ninja - Orig. Retail $30,480",
+          "msrp": 30480.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 225,
+          "price": 2201.0,
+          "pallet_ids": [
+            "PTRF70336",
+            "PTRF89714",
+            "PTRF70326",
+            "PTRF70331",
+            "PTRF69463",
+            "PTRF87965"
+          ]
+        },
+        {
+          "title": "Ice Makers - GE Profile, Insignia - Orig. Retail $34,458",
+          "msrp": 34458.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 65,
+          "price": 689.0,
+          "pallet_ids": [
+            "PTRF25280",
+            "PTRF67585",
+            "PTRF67589"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/QGYLKFXT7M/manifest.xlsx",
+      "shipped_via": [
+        "XPO"
+      ],
+      "tracking_numbers": [
+        "404681686"
+      ]
+    },
+    {
+      "date": "September 14, 2022",
+      "order_id": "R3NZQKPM7E",
+      "total": 1456.98,
+      "ship_to": "3060 Lohr Circle, Ann Arbor, MI 48108",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Home Environment, Home Improvement - 835470006, Frigidaire, Ninja - Orig. Retail $9,290",
+          "msrp": 9290.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 37,
+          "price": 325.0,
+          "pallet_ids": [
+            "PTRC00589",
+            "PTRC01511",
+            "PTRC00832"
+          ]
+        },
+        {
+          "title": "Smartwatch Bands & Baby Gear - Amazon, WITHit, ZenBaby - Orig. Retail $10,860",
+          "msrp": 10860.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 146,
+          "price": 450.0,
+          "pallet_ids": [
+            "PTRB98126",
+            "PTRB90675"
+          ]
+        },
+        {
+          "title": "Sporting Goods, Yard & Garden - Tru Grit, ZenBaby, 855320009 - Orig. Retail $2,296",
+          "msrp": 2296.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Pallet",
+          "item_count": 5,
+          "price": 89.0,
+          "pallet_ids": []
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/R3NZQKPM7E/manifest.xlsx",
+      "shipped_via": [
+        "YRC/ YELLOW"
+      ],
+      "tracking_numbers": []
+    },
+    {
+      "date": "September 11, 2022",
+      "order_id": "YECMNF7P9H",
+      "total": 2083.19,
+      "ship_to": "3060 Lohr Circle, Ann Arbor, MI 48108",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Home Theater Accessories, Furniture & Decor - Insignia, Legrand, Best Buy Essentials - Orig. Retail $21,873",
+          "msrp": 21873.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 280,
+          "price": 299.0,
+          "pallet_ids": [
+            "PTRB81347",
+            "PTRB90630"
+          ]
+        },
+        {
+          "title": "Home Theater Accessories, Furniture & Decor, More Home Theater - Insignia, Legrand, Rocketfish - Orig. Retail $26,281",
+          "msrp": 26281.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 318,
+          "price": 363.0,
+          "pallet_ids": [
+            "PTRB90937",
+            "PTRB81550"
+          ]
+        },
+        {
+          "title": "Smartwatch Accessories, General Electronics, Sporting Goods - Amazon, WITHit, ZenBaby - Orig. Retail $8,027",
+          "msrp": 8027.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Your cart has 0 lots",
+          "item_count": 92,
+          "price": 630.0,
+          "pallet_ids": [
+            "PTRB90954",
+            "PTRB98817"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/YECMNF7P9H/manifest.xlsx"
+    },
+    {
+      "date": "August 05, 2022",
+      "order_id": "C7FTXK6MG9",
+      "total": 5009.17,
+      "ship_to": "5731 Villa France Ave , Ann Arbor, MI 48103",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Desktops - HP, Dell, Lenovo - Orig. Retail $12,270",
+          "msrp": 12270.0,
+          "condition": "Used & Working",
+          "lot_size": "Pallet",
+          "item_count": 13,
+          "price": 2326.0,
+          "pallet_ids": []
+        },
+        {
+          "title": "Desktops - Apple, 805150000 - Orig. Retail $24,400",
+          "msrp": 24400.0,
+          "condition": null,
+          "lot_size": "Pallet",
+          "item_count": 13,
+          "price": 2383.0,
+          "pallet_ids": []
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/C7FTXK6MG9/manifest.xlsx",
+      "shipped_via": [
+        "YRC"
+      ],
+      "tracking_numbers": []
+    },
+    {
+      "date": "August 04, 2022",
+      "order_id": "2RNHEJ7FZP",
+      "total": 3068.3,
+      "ship_to": "5731 Villa France Ave , Ann Arbor, MI 48103",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Kitchen & Appliances, Home Improvement, Bath & Beauty - Ninja, Insignia, Frigidaire - Orig. Retail $29,328",
+          "msrp": 29328.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 253,
+          "price": 2525.0,
+          "pallet_ids": [
+            "PTRB92873",
+            "PTRB92963",
+            "PTRB92188",
+            "PTRB92866",
+            "PTRB92900",
+            "PTRB62941"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/2RNHEJ7FZP/manifest.xlsx"
+    },
+    {
+      "date": "August 04, 2022",
+      "order_id": "KPF2JCQNMX",
+      "total": 11254.56,
+      "ship_to": "5731 Villa France Ave , Ann Arbor, MI 48103",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Camera Accessories, Cameras & Photo, Commercial Equipment - Digipower, GoPro, Zerotech - Orig. Retail $17,190",
+          "msrp": 17190.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 279,
+          "price": 1554.0,
+          "pallet_ids": [
+            "PTRB95138",
+            "PTRB64010"
+          ]
+        },
+        {
+          "title": "Computer Accessories, Tablet Accessories - Apple, Microsoft, Insignia - Orig. Retail $50,726",
+          "msrp": 50726.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Pallet",
+          "item_count": 805,
+          "price": 6322.0,
+          "pallet_ids": []
+        },
+        {
+          "title": "Camera Accessories, Cameras & Photo, Computer Accessories - Digipower, Zerotech, GoPro - Orig. Retail $24,470",
+          "msrp": 24470.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 288,
+          "price": 1571.0,
+          "pallet_ids": [
+            "PTRB92611",
+            "PTRB92209"
+          ]
+        },
+        {
+          "title": "Camera Accessories, Cameras & Photo, Computer Accessories - Digipower, Zerotech, GoPro - Orig. Retail $24,448",
+          "msrp": 24448.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 265,
+          "price": 1153.0,
+          "pallet_ids": [
+            "PTRB91306",
+            "PTRB42189"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/KPF2JCQNMX/manifest.xlsx",
+      "shipped_via": [
+        "YRC/ YELLOW"
+      ],
+      "tracking_numbers": []
+    },
+    {
+      "date": "July 27, 2022",
+      "order_id": "YMLTNFKG6W",
+      "total": 19086.95,
+      "ship_to": "5731 Villa France Ave , Ann Arbor, MI 48103",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "More Home Goods, Home Improvement, General Electronics - Philips, Google, Philips  - Orig. Retail $22,794",
+          "msrp": 22794.0,
+          "condition": "Used & Working",
+          "lot_size": "Pallet",
+          "item_count": 157,
+          "price": 4108.0,
+          "pallet_ids": []
+        },
+        {
+          "title": "Desktops - Apple, 805150000 - Orig. Retail $24,500",
+          "msrp": 24500.0,
+          "condition": "Like New",
+          "lot_size": "Pallet",
+          "item_count": 21,
+          "price": 6500.0,
+          "pallet_ids": []
+        },
+        {
+          "title": "Camera Accessories, Cameras & Photo, Commercial Equipment - Zerotech, Digipower, GoPro - Orig. Retail $38,303",
+          "msrp": 38303.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 419,
+          "price": 1586.0,
+          "pallet_ids": [
+            "PTRB91022",
+            "PTRB73331"
+          ]
+        },
+        {
+          "title": "Gaming Accessories & Peripherals, Video Games & Consoles - Turtle Beach, Logitech, Rocketfish - Orig. Retail $36,799",
+          "msrp": 36799.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Pallet",
+          "item_count": 353,
+          "price": 4150.0,
+          "pallet_ids": []
+        },
+        {
+          "title": "Camera Accessories, Cameras & Photo, Computer Accessories - Digipower, GoPro, Zerotech - Orig. Retail $26,576",
+          "msrp": 26576.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 218,
+          "price": 628.0,
+          "pallet_ids": [
+            "PTRB91201",
+            "PTRB73624"
+          ]
+        },
+        {
+          "title": "Camera Accessories, Commercial Equipment, Computer Accessories - Digipower, Zerotech, Insignia - Orig. Retail $26,669",
+          "msrp": 26669.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 308,
+          "price": 1341.0,
+          "pallet_ids": [
+            "PTRB93856",
+            "PTRB64298"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/YMLTNFKG6W/manifest.xlsx",
+      "shipped_via": [
+        "YRC/ YELLOW"
+      ],
+      "tracking_numbers": []
+    },
+    {
+      "date": "July 19, 2022",
+      "order_id": "RZN9WFYE6J",
+      "total": 3564.56,
+      "ship_to": "5731 Villa France Ave , Ann Arbor, MI 48103",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Kitchen & Appliances, Home Improvement, Health & Nutrition - Insignia, Ninja, Frigidaire - Orig. Retail $33,462",
+          "msrp": 33462.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 332,
+          "price": 2691.0,
+          "pallet_ids": [
+            "PTRB91026",
+            "PTRB41615",
+            "PTRB41645",
+            "PTRB41837",
+            "PTRB91037",
+            "PTRB41839"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/RZN9WFYE6J/manifest.xlsx"
+    },
+    {
+      "date": "July 13, 2022",
+      "order_id": "9QMN3LHPKR",
+      "total": 1596.54,
+      "ship_to": "5731 Villa France Ave , Ann Arbor, MI 48103",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Camera Accessories, Cameras & Photo, Computer Accessories - Zerotech, GoPro, Digipower - Orig. Retail $28,387",
+          "msrp": 28387.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "pallet",
+          "item_count": 372,
+          "price": 1167.0,
+          "pallet_ids": [
+            "PTRB41679",
+            "PTRB42174"
+          ]
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/9QMN3LHPKR/manifest.xlsx"
+    },
+    {
+      "date": "July 11, 2022",
+      "order_id": "6N2XPQEJW7",
+      "total": 1469.93,
+      "ship_to": "5731 Villa France Ave , Ann Arbor, MI 48103",
+      "status": "Shipped",
+      "items": [
+        {
+          "title": "Gaming Accessories & Peripherals, Video Games & Consoles, Toys & Games - Turtle Beach, Logitech, Rocketfish - Orig. Retail $12,319",
+          "msrp": 12319.0,
+          "condition": "Uninspected Returns",
+          "lot_size": "Your cart has 0 lots",
+          "item_count": 139,
+          "price": 1136.0,
+          "pallet_ids": []
+        }
+      ],
+      "manifest_url": "https://www.techliquidators.com/orders/6N2XPQEJW7/manifest.xlsx",
+      "shipped_via": [
+        "YRC Freight"
+      ],
+      "tracking_numbers": []
+    }
+  ]
+}

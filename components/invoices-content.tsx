@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DataTable, type Column } from "@/components/data-table"
 import { StatusBadge } from "@/components/status-badge"
 import { KPICard } from "@/components/kpi-card"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
 import {
   Select,
   SelectContent,
@@ -13,20 +14,129 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { invoices, type Invoice } from "@/lib/mock-data"
-import { Search, Filter, Upload, CheckCircle, FileText } from "lucide-react"
+import { Search, Filter, Download, Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+
+interface Invoice {
+  id: string
+  invoiceNumber: string
+  orderId: string
+  customerID: string
+  invoiceDate: string
+  dueDate: string
+  totalDue: number
+  paymentsApplied: number
+  status: string
+  sourceFile: string
+  eta: string | null
+  palletCount: number
+}
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value)
 
+const formatDate = (dateStr: string) => {
+  try {
+    const [month, day, year] = dateStr.split('/')
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
+  } catch {
+    return dateStr
+  }
+}
+
+
+const formatETA = (eta: string | null) => {
+  if (!eta) return "—"
+  try {
+    const date = new Date(eta)
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
+  } catch {
+    return eta
+  }
+}
+
 export function InvoicesContent() {
+  const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [updatingInvoice, setUpdatingInvoice] = useState<string | null>(null)
+
+  const fetchInvoices = () => {
+    fetch("/api/invoices")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.invoices) {
+          setInvoices(data.invoices)
+        }
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error("Failed to fetch invoices:", err)
+        setLoading(false)
+      })
+  }
+
+  useEffect(() => {
+    fetchInvoices()
+  }, [])
+
+  const toggleInvoiceStatus = async (invoiceNumber: string, currentStatus: string) => {
+    const newStatus = currentStatus === "Paid" ? "Unpaid" : "Paid"
+    setUpdatingInvoice(invoiceNumber)
+
+    try {
+      const response = await fetch("/api/invoices", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          invoiceNumber,
+          status: newStatus,
+        }),
+      })
+
+      if (response.ok) {
+        // Update local state
+        setInvoices(prev =>
+          prev.map(inv =>
+            inv.invoiceNumber === invoiceNumber
+              ? { ...inv, status: newStatus, paymentsApplied: newStatus === "Paid" ? inv.totalDue : 0 }
+              : inv
+          )
+        )
+      } else {
+        console.error("Failed to update invoice status")
+      }
+    } catch (error) {
+      console.error("Error updating invoice status:", error)
+    } finally {
+      setUpdatingInvoice(null)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-muted-foreground">Loading invoices...</p>
+      </div>
+    )
+  }
 
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesStatus = statusFilter === "all" || invoice.status === statusFilter
@@ -37,15 +147,12 @@ export function InvoicesContent() {
     return matchesStatus && matchesSearch
   })
 
-  const paidAmount = invoices
-    .filter((inv) => inv.status === "Paid")
-    .reduce((sum, inv) => sum + inv.amount, 0)
-  const pendingAmount = invoices
-    .filter((inv) => inv.status === "Pending")
-    .reduce((sum, inv) => sum + inv.amount, 0)
-  const overdueAmount = invoices
-    .filter((inv) => inv.status === "Overdue")
-    .reduce((sum, inv) => sum + inv.amount, 0)
+  // Calculate totals
+  const totalDue = filteredInvoices.reduce((sum, inv) => sum + inv.totalDue, 0)
+  const totalPaid = filteredInvoices.reduce((sum, inv) => sum + inv.paymentsApplied, 0)
+  const totalOutstanding = totalDue - totalPaid
+  const paidCount = filteredInvoices.filter(inv => inv.status.toLowerCase() === 'paid').length
+  const unpaidCount = filteredInvoices.filter(inv => inv.status.toLowerCase() === 'unpaid').length
 
   const columns: Column<Invoice>[] = [
     {
@@ -59,103 +166,107 @@ export function InvoicesContent() {
       className: "font-mono",
     },
     {
-      key: "amount",
-      header: "Amount",
+      key: "eta",
+      header: "ETA",
+      render: (value) => formatETA(value as string | null),
+      className: "font-mono",
+    },
+    {
+      key: "palletCount",
+      header: "Pallets",
+      render: (value) => (value as number) > 0 ? String(value) : "—",
+      className: "font-mono text-center",
+    },
+    {
+      key: "invoiceDate",
+      header: "Invoice Date",
+      render: (value) => formatDate(value as string),
+      className: "text-muted-foreground",
+    },
+    {
+      key: "totalDue",
+      header: "Total Due",
+      render: (value) => formatCurrency(value as number),
+      className: "font-mono text-right",
+    },
+    {
+      key: "paymentsApplied",
+      header: "Paid",
       render: (value) => formatCurrency(value as number),
       className: "font-mono text-right",
     },
     {
       key: "status",
       header: "Status",
-      render: (value) => (
-        <StatusBadge
-          status={value as string}
-          type={
-            value === "Paid"
-              ? "success"
-              : value === "Pending"
-                ? "warning"
-                : "danger"
-          }
-        />
-      ),
-    },
-    {
-      key: "dueDate",
-      header: "Due Date",
-      render: (value) =>
-        new Date(value as string).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-      className: "text-muted-foreground",
-    },
-    {
-      key: "paidDate",
-      header: "Paid Date",
-      render: (value) =>
-        value
-          ? new Date(value as string).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })
-          : "-",
-      className: "text-muted-foreground",
-    },
-    {
-      key: "id",
-      header: "Actions",
-      render: (_, row) => (
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="h-8 px-2">
-            <FileText className="h-4 w-4" />
-          </Button>
-          {row.status !== "Paid" && (
-            <Button variant="ghost" size="sm" className="h-8 px-2 text-success hover:text-success">
-              <CheckCircle className="h-4 w-4" />
-            </Button>
+      render: (value, row) => (
+        <div className="flex items-center gap-3">
+          {updatingInvoice === row.invoiceNumber ? (
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          ) : (
+            <Switch
+              checked={value === "Paid"}
+              onCheckedChange={() => toggleInvoiceStatus(row.invoiceNumber, value as string)}
+              className="data-[state=checked]:bg-green-600"
+            />
           )}
+          <StatusBadge
+            status={value as string}
+            type={value === "Paid" ? "success" : "warning"}
+          />
         </div>
       ),
-      className: "w-[100px]",
     },
   ]
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Invoices</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Track and manage invoice payments
-          </p>
         </div>
-        <Button className="gap-2">
-          <Upload className="h-4 w-4" />
-          Upload PDF
+        <Button variant="outline" size="sm">
+          <Download className="mr-2 h-4 w-4" />
+          Export
         </Button>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <KPICard
-          title="Paid"
-          value={formatCurrency(paidAmount)}
-        />
-        <KPICard
-          title="Pending"
-          value={formatCurrency(pendingAmount)}
-        />
-        <KPICard
-          title="Overdue"
-          value={formatCurrency(overdueAmount)}
-        />
+      
+      {/* Invoices Summary Banner */}
+      <Card className="border-2 border-primary bg-primary/5">
+        <CardContent className="py-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Total Due</p>
+              <p className="text-2xl font-bold text-foreground">{formatCurrency(totalDue)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Total Paid</p>
+              <p className="text-2xl font-bold text-primary">{formatCurrency(totalPaid)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Paid Invoices</p>
+              <p className="text-2xl font-bold text-foreground">{paidCount}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Unpaid Invoices</p>
+              <p className="text-2xl font-bold text-foreground">{unpaidCount}</p>
+            </div>
+            <div className="text-center border-l-2 border-primary pl-6">
+              <p className="text-sm text-muted-foreground mb-1">OUTSTANDING</p>
+              <p className="text-3xl font-bold text-destructive">{formatCurrency(totalOutstanding)}</p>
+              <p className="text-xs text-muted-foreground mt-1">to be paid</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPICard title="Total Due" value={formatCurrency(totalDue)} />
+        <KPICard title="Total Paid" value={formatCurrency(totalPaid)} />
+        <KPICard title="Outstanding" value={formatCurrency(totalOutstanding)} />
+        <KPICard title="Unpaid Count" value={unpaidCount.toString()} />
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="relative flex-1 min-w-[250px] max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -169,26 +280,23 @@ export function InvoicesContent() {
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[150px] bg-input border-border">
+            <SelectTrigger className="w-[140px] bg-input border-border">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="Paid">Paid</SelectItem>
-              <SelectItem value="Pending">Pending</SelectItem>
-              <SelectItem value="Overdue">Overdue</SelectItem>
+              <SelectItem value="Unpaid">Unpaid</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      {/* Results count */}
       <div className="text-sm text-muted-foreground">
         Showing <span className="font-medium text-foreground">{filteredInvoices.length}</span> of{" "}
         <span className="font-medium text-foreground">{invoices.length}</span> invoices
       </div>
 
-      {/* Table */}
       <DataTable columns={columns} data={filteredInvoices} />
     </div>
   )

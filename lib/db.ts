@@ -1,0 +1,17 @@
+import { Pool } from 'pg'
+
+let pool: Pool | null = null
+
+export function getPool() {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL_COGS,
+      ssl: process.env.DATABASE_URL_COGS?.includes('localhost') 
+        ? false 
+        : { rejectUnauthorized: false }
+    })
+  }
+  return pool
+}
+
+export default getPool

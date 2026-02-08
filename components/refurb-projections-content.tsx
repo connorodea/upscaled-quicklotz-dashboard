@@ -1,0 +1,1862 @@
+"use client"
+
+import { useState, useEffect, useMemo } from "react"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { KPICard } from "@/components/kpi-card"
+import { DataTable, type Column } from "@/components/data-table"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Slider } from "@/components/ui/slider"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import {
+  Wrench,
+  DollarSign,
+  TrendingUp,
+  AlertTriangle,
+  Package,
+  Plus,
+  Trash2,
+  Users,
+  Target,
+  Zap,
+  Award,
+  ArrowRight,
+  ChevronDown,
+  ChevronUp,
+  BarChart3,
+  Calculator,
+} from "lucide-react"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  ReferenceLine,
+  ReferenceArea,
+  ComposedChart,
+  Area,
+  AreaChart,
+  LineChart,
+  Line,
+  Cell,
+  PieChart,
+  Pie,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+} from "recharts"
+
+// ── Category data ──────────────────────────────────────────────────
+interface Category {
+  id: string
+  name: string
+  refurbLow: number
+  refurbHigh: number
+  boxLow: number
+  boxHigh: number
+  passRate: number
+  sellPctLow: number
+  sellPctHigh: number
+  notes: string
+  tier: "S" | "A" | "B" | "C"
+}
+
+const CATEGORIES: Category[] = [
+  { id: "apple-laptops", name: "Apple Laptops", refurbLow: 40, refurbHigh: 45, boxLow: 4, boxHigh: 6, passRate: 1, sellPctLow: 35, sellPctHigh: 35, notes: "High margin", tier: "S" },
+  { id: "consoles", name: "Game Consoles", refurbLow: 30, refurbHigh: 50, boxLow: 0, boxHigh: 0, passRate: 1, sellPctLow: 35, sellPctHigh: 35, notes: "Full wipe + firmware", tier: "S" },
+  { id: "ipads", name: "iPads", refurbLow: 30, refurbHigh: 35, boxLow: 4, boxHigh: 6, passRate: 1, sellPctLow: 35, sellPctHigh: 35, notes: "", tier: "A" },
+  { id: "smart-watches", name: "Smart Watches", refurbLow: 20, refurbHigh: 30, boxLow: 5, boxHigh: 5, passRate: 1, sellPctLow: 35, sellPctHigh: 35, notes: "Model dependent", tier: "A" },
+  { id: "beats", name: "Beats Headphones", refurbLow: 12, refurbHigh: 12, boxLow: 3, boxHigh: 3, passRate: 1, sellPctLow: 35, sellPctHigh: 35, notes: "Over-ear $3 box / earbuds mailer", tier: "A" },
+  { id: "vacuums", name: "Vacuums", refurbLow: 23, refurbHigh: 25, boxLow: 6, boxHigh: 8, passRate: 1, sellPctLow: 35, sellPctHigh: 35, notes: "Model dependent", tier: "B" },
+  { id: "ms-tablets", name: "Microsoft Tablets", refurbLow: 30, refurbHigh: 35, boxLow: 4, boxHigh: 6, passRate: 1, sellPctLow: 35, sellPctHigh: 35, notes: "", tier: "B" },
+  { id: "ms-computers", name: "Microsoft PCs", refurbLow: 50, refurbHigh: 50, boxLow: 10, boxHigh: 12, passRate: 1, sellPctLow: 35, sellPctHigh: 35, notes: "High-end / gaming", tier: "B" },
+  { id: "ice-makers", name: "Ice Makers", refurbLow: 23, refurbHigh: 23, boxLow: 8, boxHigh: 8, passRate: 0.5, sellPctLow: 35, sellPctHigh: 35, notes: "50% fail rate (mold)", tier: "C" },
+  { id: "smart-rings", name: "Smart Rings", refurbLow: 0, refurbHigh: 0, boxLow: 0, boxHigh: 0, passRate: 1, sellPctLow: 35, sellPctHigh: 35, notes: "TBD — no data yet", tier: "C" },
+]
+
+const TIER_COLORS: Record<string, string> = {
+  S: "oklch(0.75 0.16 85)",
+  A: "oklch(0.72 0.15 185)",
+  B: "oklch(0.65 0.18 40)",
+  C: "oklch(0.50 0.12 30)",
+}
+
+const TIER_BG: Record<string, string> = {
+  S: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+  A: "bg-sky-500/15 text-sky-400 border-sky-500/30",
+  B: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+  C: "bg-red-500/15 text-red-400 border-red-500/30",
+}
+
+interface ScenarioItem {
+  id: number
+  categoryId: string
+  qty: number
+  cogs: number
+  msrp: number
+  sellPrice: number
+  needsBox: boolean
+  salesChannel: "wholesale" | "ecommerce" | "retail"
+}
+
+// Sales channel cost structure
+const SALES_CHANNELS = {
+  wholesale: {
+    name: "Wholesale",
+    sellPct: 22, // 20-25% of MSRP
+    platformFeePct: 0, // No platform fee
+    avgShipping: 0, // Buyer pays shipping or pickup
+    description: "Bulk sales to resellers at 20-25% of MSRP",
+  },
+  ecommerce: {
+    name: "Ecommerce",
+    sellPct: 45, // 40-50% of MSRP
+    platformFeePct: 15, // eBay/Amazon ~15% total fees
+    avgShipping: 20, // Average shipping cost per item
+    description: "eBay/Amazon at 40-50% MSRP, 15% fees + $20 shipping",
+  },
+  retail: {
+    name: "Retail",
+    sellPct: 50, // 50% of MSRP
+    platformFeePct: 3, // Credit card processing only
+    avgShipping: 0, // In-store pickup
+    description: "Direct retail at ~50% MSRP, minimal fees",
+  },
+}
+
+interface LiveData {
+  avgCogsPercent: number
+  avgMsrp: number
+  totalItems: number
+  totalMsrp: number
+  totalCogs: number
+  loaded: boolean
+}
+
+// Live category data from database
+interface LiveCategoryData {
+  category: string
+  itemCount: number
+  avgMsrp: number
+  avgCogsPerUnit: number
+  totalMsrp: number
+  totalCogs: number
+  totalQty: number
+}
+
+// Map database category names to our static category IDs
+const CATEGORY_NAME_MAP: Record<string, string> = {
+  // Apple Laptops
+  "Apple Laptops": "apple-laptops",
+  "Laptops": "apple-laptops",
+  "MacBook": "apple-laptops",
+  "MacBooks": "apple-laptops",
+  // Game Consoles
+  "Game Consoles": "consoles",
+  "Gaming Consoles": "consoles",
+  "Consoles": "consoles",
+  "PlayStation": "consoles",
+  "Xbox": "consoles",
+  "Nintendo": "consoles",
+  "Video Games & Consoles": "consoles",
+  // iPads/Tablets
+  "iPads": "ipads",
+  "iPad": "ipads",
+  "Tablets": "ipads",
+  "Apple Tablets": "ipads",
+  // Smart Watches
+  "Smart Watches": "smart-watches",
+  "Smartwatches": "smart-watches",
+  "Apple Watch": "smart-watches",
+  "Watches": "smart-watches",
+  "Smartwatch Accessories": "smart-watches",
+  // Beats/Headphones
+  "Beats Headphones": "beats",
+  "Beats": "beats",
+  "Headphones": "beats",
+  "Audio": "beats",
+  "Home Theater Audio": "beats",
+  "Speakers": "beats",
+  "Soundbars": "beats",
+  // Vacuums
+  "Vacuums": "vacuums",
+  "Vacuum": "vacuums",
+  "Vacuum Cleaners": "vacuums",
+  "Vacuums & Floorcare": "vacuums",
+  // Microsoft Tablets
+  "Microsoft Tablets": "ms-tablets",
+  "Surface": "ms-tablets",
+  // Microsoft PCs/Desktops
+  "Microsoft PCs": "ms-computers",
+  "PCs": "ms-computers",
+  "Computers": "ms-computers",
+  "Desktops": "ms-computers",
+  // Ice Makers
+  "Ice Makers": "ice-makers",
+  "Ice Maker": "ice-makers",
+  // Smart Rings
+  "Smart Rings": "smart-rings",
+}
+
+let _nextId = 1
+
+function mid(a: number, b: number) {
+  return Math.round(((a + b) / 2) * 100) / 100
+}
+
+const fmt = (value: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value)
+
+const fmtK = (value: number) => {
+  if (Math.abs(value) >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`
+  if (Math.abs(value) >= 1_000) return `$${(value / 1_000).toFixed(0)}k`
+  return `$${Math.round(value)}`
+}
+
+// ── Preset scenarios ───────────────────────────────────────────────
+const PRESETS = [
+  { name: "Apple Bundle", items: [{ catId: "apple-laptops", qty: 30 }, { catId: "ipads", qty: 50 }, { catId: "smart-watches", qty: 40 }] },
+  { name: "Audio + Gaming", items: [{ catId: "beats", qty: 100 }, { catId: "consoles", qty: 40 }] },
+  { name: "Full Mixed Pallet", items: [{ catId: "apple-laptops", qty: 10 }, { catId: "ipads", qty: 15 }, { catId: "beats", qty: 30 }, { catId: "vacuums", qty: 20 }, { catId: "consoles", qty: 10 }, { catId: "smart-watches", qty: 15 }] },
+  { name: "Microsoft Focus", items: [{ catId: "ms-tablets", qty: 40 }, { catId: "ms-computers", qty: 25 }] },
+]
+
+// ── Reference table columns ────────────────────────────────────────
+interface RefRow {
+  name: string
+  tier: string
+  refurbCost: string
+  boxCost: string
+  passRate: number
+  sellRange: string
+  allInMid: number
+  marginAt200: number
+  roi: number
+  notes: string
+  [key: string]: unknown
+}
+
+// ── Custom tooltips ────────────────────────────────────────────────
+const DarkTooltipStyle = { backgroundColor: "oklch(0.18 0.02 260)", border: "1px solid oklch(0.25 0.02 260)", borderRadius: "8px", color: "oklch(0.95 0.01 260)" }
+
+const EconomicTooltip = ({ active, payload }: any) => {
+  if (!active || !payload?.length) return null
+  const d = payload[0]?.payload
+  if (!d) return null
+  return (
+    <div style={{ ...DarkTooltipStyle, padding: "12px 16px", minWidth: "260px" }}>
+      <p style={{ fontWeight: 600, marginBottom: 10, fontSize: 14 }}>Recovery: {Math.round(d.rate)}% of MSRP</p>
+      <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+        <p style={{ color: "oklch(0.72 0.15 185)" }}>Revenue: <span style={{ float: "right", fontFamily: "monospace" }}>{fmt(d.sellRevenue)}</span></p>
+        <p style={{ color: "oklch(0.65 0.18 40)" }}>All-In Cost: <span style={{ float: "right", fontFamily: "monospace" }}>{fmt(d.totalCost)}</span></p>
+        <hr style={{ border: "none", borderTop: "1px solid oklch(0.35 0.02 260)", margin: "6px 0" }} />
+        <p style={{ fontWeight: 600, color: d.profit >= 0 ? "oklch(0.70 0.18 160)" : "oklch(0.65 0.20 30)", fontSize: 14 }}>
+          Net Profit: <span style={{ float: "right", fontFamily: "monospace" }}>{fmt(d.profit)}</span>
+        </p>
+        <p style={{ color: "oklch(0.75 0.16 85)" }}>ROI: <span style={{ float: "right", fontFamily: "monospace" }}>{d.roi.toFixed(1)}%</span></p>
+        {d.profit > 0 && (
+          <>
+            <hr style={{ border: "none", borderTop: "1px solid oklch(0.35 0.02 260)", margin: "6px 0" }} />
+            <p style={{ color: "oklch(0.72 0.15 185)" }}>Sam&apos;s 50%: <span style={{ float: "right", fontFamily: "monospace" }}>{fmt(d.profit / 2)}</span></p>
+            <p style={{ color: "oklch(0.70 0.18 160)" }}>Connor&apos;s 50%: <span style={{ float: "right", fontFamily: "monospace" }}>{fmt(d.profit / 2)}</span></p>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const ScenarioTooltip = ({ active, payload }: any) => {
+  if (!active || !payload?.length) return null
+  const d = payload[0]?.payload
+  if (!d) return null
+  return (
+    <div style={{ ...DarkTooltipStyle, padding: "12px 16px", minWidth: "220px" }}>
+      <p style={{ fontWeight: 600, marginBottom: 10, fontSize: 14 }}>{d.name}</p>
+      <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+        <p>Investment: <span style={{ float: "right", fontFamily: "monospace" }}>{fmt(d.cost)}</span></p>
+        <p>Revenue: <span style={{ float: "right", fontFamily: "monospace" }}>{fmt(d.revenue)}</span></p>
+        <hr style={{ border: "none", borderTop: "1px solid oklch(0.35 0.02 260)", margin: "6px 0" }} />
+        <p style={{ fontWeight: 600, color: d.profit >= 0 ? "oklch(0.70 0.18 160)" : "oklch(0.65 0.20 30)" }}>
+          Profit: <span style={{ float: "right", fontFamily: "monospace" }}>{fmt(d.profit)}</span>
+        </p>
+        <p style={{ color: "oklch(0.75 0.16 85)" }}>ROI: <span style={{ float: "right", fontFamily: "monospace" }}>{d.roi?.toFixed(0)}%</span></p>
+      </div>
+    </div>
+  )
+}
+
+const CategoryTooltip = ({ active, payload }: any) => {
+  if (!active || !payload?.length) return null
+  const d = payload[0]?.payload
+  if (!d) return null
+  return (
+    <div style={{ ...DarkTooltipStyle, padding: "12px 16px", minWidth: "220px" }}>
+      <p style={{ fontWeight: 600, marginBottom: 10, fontSize: 14 }}>{d.name}</p>
+      <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+        {payload.map((p: any) => (
+          <p key={p.dataKey} style={{ color: p.stroke || p.fill || "oklch(0.85 0.01 260)" }}>
+            {p.name}: <span style={{ float: "right", fontFamily: "monospace" }}>{fmt(p.value)}</span>
+          </p>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Main Component ─────────────────────────────────────────────────
+export function RefurbProjectionsContent() {
+  const [items, setItems] = useState<ScenarioItem[]>([])
+  const [globalCogs, setGlobalCogs] = useState(15)
+  const [globalMsrp, setGlobalMsrp] = useState(200)
+  const [monthlyVolume, setMonthlyVolume] = useState(500)
+  const [timeHorizon, setTimeHorizon] = useState<"monthly" | "quarterly" | "annual">("monthly")
+  const [salesChannel, setSalesChannel] = useState<"wholesale" | "ecommerce" | "retail">("ecommerce")
+  const [recoveryRate, setRecoveryRate] = useState(40) // Default 40% of MSRP
+  const [selectedCategory, setSelectedCategory] = useState<string>("all") // "all" or category name
+  const [liveData, setLiveData] = useState<LiveData>({ avgCogsPercent: 0.048, avgMsrp: 200, totalItems: 0, totalMsrp: 0, totalCogs: 0, loaded: false })
+  const [liveCategoryData, setLiveCategoryData] = useState<LiveCategoryData[]>([])
+
+  // Fetch aggregate stats AND per-category data from database
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/orders").then(r => r.json()).catch(() => null),
+      fetch("/api/master-manifest-items").then(r => r.json()).catch(() => null),
+      fetch("/api/refurb-categories").then(r => r.json()).catch(() => null),
+    ]).then(([ordersRes, manifestRes, categoryRes]) => {
+      let avgCogsPercent = 0.048
+      let totalItems = 0
+      let totalMsrp = 0
+      let totalCogs = 0
+      let avgMsrp = 200
+
+      if (ordersRes?.success && ordersRes?.orders?.length > 0) {
+        totalMsrp = ordersRes.orders.reduce((s: number, o: any) => s + (Number(o.totalMSRP) || 0), 0)
+        totalCogs = ordersRes.orders.reduce((s: number, o: any) => s + (Number(o.totalAllIn) || Number(o.totalAllInCost) || 0), 0)
+        totalItems = ordersRes.orders.reduce((s: number, o: any) => s + (Number(o.totalItems) || 0), 0)
+        if (totalMsrp > 0) avgCogsPercent = totalCogs / totalMsrp
+      }
+
+      if (manifestRes?.summary) {
+        const s = manifestRes.summary
+        if (s.totalMSRP > 0 && s.totalAllocatedCOGS > 0) {
+          avgCogsPercent = s.totalAllocatedCOGS / s.totalMSRP
+          totalMsrp = s.totalMSRP
+          totalCogs = s.totalAllocatedCOGS
+          totalItems = s.totalItems
+        }
+        if (s.totalItems > 0 && s.totalMSRP > 0) {
+          avgMsrp = Math.round(s.totalMSRP / s.totalItems)
+        }
+      }
+
+      // Store per-category data from database
+      if (categoryRes?.success && categoryRes?.categories?.length > 0) {
+        setLiveCategoryData(categoryRes.categories)
+      }
+
+      setLiveData({ avgCogsPercent, avgMsrp, totalItems, totalMsrp, totalCogs, loaded: true })
+    })
+  }, [])
+
+  // Update COGS and MSRP when category is selected
+  useEffect(() => {
+    if (selectedCategory === "all") {
+      // Use overall averages
+      if (liveData.loaded && liveData.totalItems > 0) {
+        setGlobalMsrp(Math.round(liveData.totalMsrp / liveData.totalItems))
+        setGlobalCogs(Math.round(liveData.totalCogs / liveData.totalItems))
+      }
+    } else {
+      // Use category-specific data
+      const catData = liveCategoryData.find(lc => lc.category === selectedCategory)
+      if (catData) {
+        setGlobalMsrp(Math.round(catData.avgMsrp))
+        setGlobalCogs(Math.round(catData.avgCogsPerUnit))
+        setMonthlyVolume(Math.min(500, Math.round(catData.totalQty / 12))) // Estimate monthly from total
+      }
+    }
+  }, [selectedCategory, liveCategoryData, liveData])
+
+  // Helper to get live data for a category
+  const getCategoryLiveData = (catId: string) => {
+    // For database-only categories (id starts with "db-"), extract the category name
+    if (catId.startsWith('db-')) {
+      const dbCatName = catId.replace('db-', '').replace(/-/g, ' ')
+      return liveCategoryData.find(lc =>
+        lc.category.toLowerCase().replace(/[^a-z0-9]/g, ' ').includes(dbCatName) ||
+        dbCatName.includes(lc.category.toLowerCase().replace(/[^a-z0-9]/g, ' '))
+      ) || null
+    }
+
+    const cat = CATEGORIES.find(c => c.id === catId)
+    if (!cat) return null
+
+    // Find matching live data by category name (fuzzy match)
+    const liveMatch = liveCategoryData.find(lc => {
+      const mappedId = CATEGORY_NAME_MAP[lc.category]
+      if (mappedId === catId) return true
+      // Also try partial match
+      const catNameLower = cat.name.toLowerCase()
+      const liveCatLower = lc.category.toLowerCase()
+      return catNameLower.includes(liveCatLower) || liveCatLower.includes(catNameLower)
+    })
+
+    return liveMatch || null
+  }
+
+  // Helper to get category definition (static or dynamic)
+  const getCategoryDef = (catId: string): Category | null => {
+    // First check static categories
+    const staticCat = CATEGORIES.find(c => c.id === catId)
+    if (staticCat) return staticCat
+
+    // For database categories, create a dynamic definition
+    if (catId.startsWith('db-')) {
+      const liveData = getCategoryLiveData(catId)
+      if (liveData) {
+        return {
+          id: catId,
+          name: liveData.category,
+          refurbLow: 25,
+          refurbHigh: 35,
+          boxLow: 5,
+          boxHigh: 8,
+          passRate: 0.9,
+          sellPctLow: 35,
+          sellPctHigh: 35,
+          notes: `DB: ${liveData.itemCount} items`,
+          tier: "B" as const,
+        }
+      }
+    }
+    return null
+  }
+
+  const timeMult = timeHorizon === "monthly" ? 1 : timeHorizon === "quarterly" ? 3 : 12
+  const timeLabel = timeHorizon === "monthly" ? "Monthly" : timeHorizon === "quarterly" ? "Quarterly" : "Annual"
+
+  function addItem(catId?: string) {
+    const cat = getCategoryDef(catId || "apple-laptops") || CATEGORIES[0]
+    const catLiveData = getCategoryLiveData(cat.id)
+    // Use live data from database if available, otherwise fall back to global values
+    const cogs = catLiveData?.avgCogsPerUnit ? Math.round(catLiveData.avgCogsPerUnit) : globalCogs
+    const msrp = catLiveData?.avgMsrp ? Math.round(catLiveData.avgMsrp) : globalMsrp
+    // Use sales channel sell percentage
+    const channelSellPct = SALES_CHANNELS[salesChannel].sellPct / 100
+    setItems(prev => [...prev, {
+      id: _nextId++,
+      categoryId: cat.id,
+      qty: catLiveData?.totalQty ? Math.min(50, catLiveData.totalQty) : 50,
+      cogs,
+      msrp,
+      sellPrice: Math.round(msrp * channelSellPct),
+      needsBox: salesChannel !== "wholesale", // No box for wholesale
+      salesChannel,
+    }])
+  }
+
+  function loadPreset(preset: typeof PRESETS[number]) {
+    const channelSellPct = SALES_CHANNELS[salesChannel].sellPct / 100
+    const newItems = preset.items.map(p => {
+      const cat = getCategoryDef(p.catId) || CATEGORIES[0]
+      const catLiveData = getCategoryLiveData(p.catId)
+      const cogs = catLiveData?.avgCogsPerUnit ? Math.round(catLiveData.avgCogsPerUnit) : globalCogs
+      const msrp = catLiveData?.avgMsrp ? Math.round(catLiveData.avgMsrp) : globalMsrp
+      return {
+        id: _nextId++,
+        categoryId: p.catId,
+        qty: p.qty,
+        cogs,
+        msrp,
+        sellPrice: Math.round(msrp * channelSellPct),
+        needsBox: salesChannel !== "wholesale",
+        salesChannel,
+      }
+    })
+    setItems(newItems)
+  }
+
+  function removeItem(id: number) { setItems(prev => prev.filter(i => i.id !== id)) }
+  function updateItem(id: number, updates: Partial<ScenarioItem>) {
+    setItems(prev => prev.map(item => {
+      if (item.id !== id) return item
+      const next = { ...item, ...updates }
+      // When changing category, update COGS and MSRP from live data
+      if (updates.categoryId !== undefined) {
+        const catLiveData = getCategoryLiveData(next.categoryId)
+        const cat = getCategoryDef(next.categoryId) || CATEGORIES[0]
+        next.cogs = catLiveData?.avgCogsPerUnit ? Math.round(catLiveData.avgCogsPerUnit) : next.cogs
+        next.msrp = catLiveData?.avgMsrp ? Math.round(catLiveData.avgMsrp) : next.msrp
+        if (next.msrp > 0) next.sellPrice = Math.round(next.msrp * mid(cat.sellPctLow, cat.sellPctHigh) / 100)
+      } else if (updates.msrp !== undefined) {
+        const cat = getCategoryDef(next.categoryId) || CATEGORIES[0]
+        if (next.msrp > 0) next.sellPrice = Math.round(next.msrp * mid(cat.sellPctLow, cat.sellPctHigh) / 100)
+      }
+      return next
+    }))
+  }
+
+  // ── Computed data ────────────────────────────────────────────────
+  const allStaticCategories = CATEGORIES.filter(c => c.refurbLow > 0)
+
+  // Get category definition for selected category (handles both static and DB categories)
+  const selectedCategoryDef = useMemo((): Category | null => {
+    if (selectedCategory === "all") return null
+    
+    // Get live data for the selected category
+    const liveData = liveCategoryData.find(lc => lc.category === selectedCategory)
+    
+    // First check if this maps to a static category (using CATEGORY_NAME_MAP)
+    const mappedId = CATEGORY_NAME_MAP[selectedCategory]
+    if (mappedId) {
+      const staticCat = CATEGORIES.find(c => c.id === mappedId)
+      if (staticCat) {
+        // Use static category refurb costs but update with live MSRP context if available
+        return {
+          ...staticCat,
+          notes: liveData 
+            ? `${staticCat.notes} | DB: ${liveData.itemCount} items @ ${Math.round(liveData.avgMsrp)} avg`
+            : staticCat.notes,
+        }
+      }
+    }
+    
+    // Also check direct name match to static category
+    const directMatch = CATEGORIES.find(c => c.name === selectedCategory)
+    if (directMatch) return directMatch
+    
+    // For database-only categories, estimate refurb cost based on MSRP
+    if (liveData) {
+      // Heuristic: 8-12% of MSRP with min $5 and max $50
+      const estimatedRefurb = Math.min(50, Math.max(5, Math.round(liveData.avgMsrp * 0.10)))
+      const estimatedBox = Math.min(10, Math.max(3, Math.round(liveData.avgMsrp * 0.05)))
+      
+      return {
+        id: `db-${liveData.category.toLowerCase().replace(/[^a-z0-9]/g, "-")}`,
+        name: liveData.category,
+        refurbLow: Math.max(3, estimatedRefurb - 2),
+        refurbHigh: estimatedRefurb + 2,
+        boxLow: Math.max(2, estimatedBox - 1),
+        boxHigh: estimatedBox + 1,
+        passRate: 0.85, // Conservative estimate for general categories
+        sellPctLow: 35,
+        sellPctHigh: 35,
+        notes: `Est. from ${liveData.itemCount} items @ ${Math.round(liveData.avgMsrp)} avg MSRP`,
+        tier: "B" as const,
+      }
+    }
+    return null
+  }, [selectedCategory, liveCategoryData])
+
+  // Use selected category for calculations, or all static categories if "all"
+  const effectiveCategories = useMemo(() => {
+    if (selectedCategoryDef) {
+      return [selectedCategoryDef]
+    }
+    return allStaticCategories
+  }, [selectedCategoryDef, allStaticCategories])
+
+  // Keep activeCategories for reference table (always shows all static categories)
+  const activeCategories = allStaticCategories
+
+  // Merge static categories with database categories
+  const allCategories = useMemo(() => {
+    const staticCats = CATEGORIES.filter(c => c.refurbLow > 0)
+    const staticIds = new Set(staticCats.map(c => c.id))
+    const staticNames = new Set(staticCats.map(c => c.name.toLowerCase()))
+
+    // Add database categories that don't exist in static list
+    const dbOnlyCats: Category[] = liveCategoryData
+      .filter(lc => {
+        const mappedId = CATEGORY_NAME_MAP[lc.category]
+        if (mappedId && staticIds.has(mappedId)) return false
+        if (staticNames.has(lc.category.toLowerCase())) return false
+        return true
+      })
+      .map(lc => ({
+        id: `db-${lc.category.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+        name: lc.category,
+        refurbLow: 25, // Default refurb estimate
+        refurbHigh: 35,
+        boxLow: 5,
+        boxHigh: 8,
+        passRate: 0.9, // Default pass rate
+        sellPctLow: 35, // Conservative 35% of MSRP
+        sellPctHigh: 35,
+        notes: `DB: ${lc.itemCount} items, avg $${Math.round(lc.avgMsrp)} MSRP`,
+        tier: "B" as const, // Default tier for DB categories
+      }))
+
+    return [...staticCats, ...dbOnlyCats]
+  }, [liveCategoryData])
+
+  const refTableData: RefRow[] = useMemo(() => {
+    return CATEGORIES.map(cat => {
+      const refurb = mid(cat.refurbLow, cat.refurbHigh)
+      const box = mid(cat.boxLow, cat.boxHigh)
+      const allIn = globalCogs + refurb + box
+      const sellPct = mid(cat.sellPctLow, cat.sellPctHigh) / 100
+      const sellPrice = Math.round(globalMsrp * sellPct)
+      const margin = (sellPrice * cat.passRate) - allIn
+      const roi = allIn > 0 ? (margin / allIn) * 100 : 0
+      return {
+        name: cat.name, tier: cat.tier,
+        refurbCost: cat.refurbLow === 0 ? "TBD" : cat.refurbLow === cat.refurbHigh ? `$${cat.refurbLow}` : `$${cat.refurbLow}–$${cat.refurbHigh}`,
+        boxCost: cat.boxLow === 0 && cat.boxHigh === 0 ? "—" : cat.boxLow === cat.boxHigh ? `$${cat.boxLow}` : `$${cat.boxLow}–$${cat.boxHigh}`,
+        passRate: cat.passRate, sellRange: `${cat.sellPctLow}%–${cat.sellPctHigh}%`, notes: cat.notes,
+        allInMid: allIn, marginAt200: Math.round(margin), roi: Math.round(roi),
+      }
+    })
+  }, [globalCogs, globalMsrp])
+
+  const refColumns: Column<RefRow>[] = useMemo(() => [
+    {
+      key: "tier", header: "Tier", className: "text-center w-16",
+      render: (value) => {
+        const t = value as string
+        return <span className={`inline-flex items-center justify-center w-7 h-7 rounded-md border text-xs font-bold ${TIER_BG[t] || ""}`}>{t}</span>
+      },
+    },
+    { key: "name", header: "Category", className: "font-medium" },
+    { key: "refurbCost", header: "Refurb", className: "font-mono text-right" },
+    { key: "boxCost", header: "Box", className: "font-mono text-right" },
+    {
+      key: "passRate", header: "Pass Rate", className: "text-center",
+      render: (value) => {
+        const v = value as number
+        return <Badge variant={v < 1 ? "destructive" : "default"} className={v < 1 ? "" : "bg-success/20 text-success border-success/30"}>{Math.round(v * 100)}%</Badge>
+      },
+    },
+    { key: "sellRange", header: "Sell %", className: "font-mono text-right" },
+    {
+      key: "allInMid", header: "All-In", className: "font-mono text-right",
+      render: (value) => <span className="font-mono">{fmt(value as number)}</span>,
+    },
+    {
+      key: "marginAt200", header: `Margin @ $${globalMsrp}`, className: "font-mono text-right",
+      render: (value) => {
+        const v = value as number
+        return <span className={v >= 0 ? "text-primary font-semibold" : "text-destructive font-semibold"}>{fmt(v)}</span>
+      },
+    },
+    {
+      key: "roi", header: "ROI", className: "font-mono text-right",
+      render: (value) => {
+        const v = value as number
+        return <span className={v >= 0 ? "text-primary" : "text-destructive"}>{v}%</span>
+      },
+    },
+    {
+      key: "notes", header: "Notes", className: "text-sm",
+      render: (value, row) => {
+        const r = row as RefRow
+        return <span className="text-muted-foreground">{value as string}{r.passRate < 1 && <AlertTriangle className="ml-1 inline h-3 w-3 text-destructive" />}</span>
+      },
+    },
+  ], [globalMsrp])
+
+  const avgRefurbCost = Math.round(effectiveCategories.reduce((s, c) => s + mid(c.refurbLow, c.refurbHigh), 0) / effectiveCategories.length)
+  // Use sales channel sell percentage
+  const avgSellPct = recoveryRate
+
+  // Economic analysis - includes channel costs
+  const economicData = useMemo(() => {
+    const channel = SALES_CHANNELS[salesChannel]
+    const data = []
+    for (let i = 15; i <= 80; i += 1) {
+      const rate = i / 100
+      const sellPrice = globalMsrp * rate
+      // Channel costs
+      const platformFee = sellPrice * (channel.platformFeePct / 100)
+      const shipping = channel.avgShipping
+      let totalProfit = 0, totalCost = 0
+      for (const cat of effectiveCategories) {
+        const box = salesChannel === "wholesale" ? 0 : mid(cat.boxLow, cat.boxHigh)
+        const allIn = globalCogs + mid(cat.refurbLow, cat.refurbHigh) + box + platformFee + shipping
+        totalProfit += (sellPrice * cat.passRate) - allIn
+        totalCost += allIn
+      }
+      const avgProfit = totalProfit / effectiveCategories.length
+      const avgCost = totalCost / effectiveCategories.length
+      data.push({ rate: i, sellRevenue: sellPrice, totalCost: avgCost, profit: avgProfit, roi: avgCost > 0 ? (avgProfit / avgCost) * 100 : 0 })
+    }
+    return data
+  }, [globalCogs, globalMsrp, effectiveCategories, salesChannel])
+
+  const breakEvenRate = useMemo(() => {
+    const found = economicData.find(d => d.profit >= 0)
+    return found ? found.rate : 100
+  }, [economicData])
+
+  // Per-category profit curves (multi-line)
+  const categoryProfitCurves = useMemo(() => {
+    const rates = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75]
+    return rates.map(r => {
+      const point: any = { rate: r }
+      for (const cat of effectiveCategories) {
+        const allIn = globalCogs + mid(cat.refurbLow, cat.refurbHigh) + mid(cat.boxLow, cat.boxHigh)
+        const sell = globalMsrp * (r / 100)
+        point[cat.name] = Math.round((sell * cat.passRate) - allIn)
+      }
+      return point
+    })
+  }, [globalCogs, globalMsrp, activeCategories])
+
+  // Margin comparison
+  const compData = useMemo(() => {
+    return effectiveCategories.map(cat => {
+      const refurb = mid(cat.refurbLow, cat.refurbHigh)
+      const box = mid(cat.boxLow, cat.boxHigh)
+      const allIn = globalCogs + refurb + box
+      const sellPct = mid(cat.sellPctLow, cat.sellPctHigh) / 100
+      const sellPrice = Math.round(globalMsrp * sellPct)
+      const margin = (sellPrice * cat.passRate) - allIn
+      const roi = allIn > 0 ? (margin / allIn) * 100 : 0
+      return { name: cat.name, tier: cat.tier, refurb, box, cogs: globalCogs, allIn, sellPrice, margin: Math.round(margin), roi: Math.round(roi) }
+    }).sort((a, b) => b.margin - a.margin)
+  }, [globalCogs, globalMsrp, activeCategories])
+
+  // Waterfall data
+  const waterfallData = useMemo(() => {
+    const sellPct = avgSellPct / 100
+    const sellPrice = Math.round(globalMsrp * sellPct)
+    const avgBox = Math.round(activeCategories.reduce((s, c) => s + mid(c.boxLow, c.boxHigh), 0) / activeCategories.length)
+    const profit = sellPrice - globalCogs - avgRefurbCost - avgBox
+    return [
+      { name: "Sell Price", value: sellPrice, fill: "oklch(0.72 0.15 185)", total: sellPrice },
+      { name: "COGS", value: -globalCogs, fill: "oklch(0.65 0.20 30)", total: sellPrice - globalCogs },
+      { name: "Refurb", value: -avgRefurbCost, fill: "oklch(0.60 0.18 40)", total: sellPrice - globalCogs - avgRefurbCost },
+      { name: "Box", value: -avgBox, fill: "oklch(0.55 0.15 280)", total: sellPrice - globalCogs - avgRefurbCost - avgBox },
+      { name: "Profit", value: profit, fill: profit >= 0 ? "oklch(0.70 0.18 160)" : "oklch(0.55 0.15 30)", total: profit },
+    ]
+  }, [globalCogs, globalMsrp, avgRefurbCost, avgSellPct, activeCategories])
+
+  // Volume projection - uses sales channel settings
+  const volumeData = useMemo(() => {
+    const channel = SALES_CHANNELS[salesChannel]
+    const vol = monthlyVolume * timeMult
+    const perCat = Math.round(vol / effectiveCategories.length)
+    return effectiveCategories.map(cat => {
+      const refurb = mid(cat.refurbLow, cat.refurbHigh)
+      const box = salesChannel === "wholesale" ? 0 : mid(cat.boxLow, cat.boxHigh) // No box for wholesale
+      const baseCost = globalCogs + refurb + box
+      // Use channel sell percentage instead of category
+      const sellPrice = Math.round(globalMsrp * recoveryRate / 100)
+      // Channel costs
+      const platformFee = sellPrice * (channel.platformFeePct / 100)
+      const shipping = channel.avgShipping
+      const sellable = Math.round(perCat * cat.passRate)
+      const totalBaseCost = baseCost * perCat
+      const totalChannelCosts = (platformFee + shipping) * sellable
+      const totalRevenue = sellPrice * sellable
+      const profit = totalRevenue - totalBaseCost - totalChannelCosts
+      return {
+        name: cat.name,
+        tier: cat.tier,
+        units: perCat,
+        cost: Math.round(totalBaseCost + totalChannelCosts),
+        revenue: Math.round(totalRevenue),
+        profit: Math.round(profit),
+        platformFee: Math.round(platformFee * sellable),
+        shipping: Math.round(shipping * sellable),
+      }
+    }).sort((a, b) => b.profit - a.profit)
+  }, [globalCogs, globalMsrp, monthlyVolume, timeMult, effectiveCategories, salesChannel, recoveryRate])
+
+  const volumeTotals = useMemo(() => {
+    const cost = volumeData.reduce((s, r) => s + r.cost, 0)
+    const revenue = volumeData.reduce((s, r) => s + r.revenue, 0)
+    const profit = revenue - cost
+    return { cost, revenue, profit, roi: cost > 0 ? (profit / cost) * 100 : 0, margin: revenue > 0 ? (profit / revenue) * 100 : 0 }
+  }, [volumeData])
+
+  // Pie chart
+  const pieData = useMemo(() => {
+    const avgBox = Math.round(activeCategories.reduce((s, c) => s + mid(c.boxLow, c.boxHigh), 0) / activeCategories.length)
+    return [
+      { name: "COGS", value: globalCogs, fill: "oklch(0.65 0.20 30)" },
+      { name: "Refurb Labor", value: avgRefurbCost, fill: "oklch(0.72 0.15 185)" },
+      { name: "Packaging", value: avgBox, fill: "oklch(0.75 0.16 85)" },
+    ]
+  }, [globalCogs, avgRefurbCost, activeCategories])
+
+  // Radar chart for category comparison
+  const radarData = useMemo(() => {
+    return activeCategories.map(cat => {
+      const refurb = mid(cat.refurbLow, cat.refurbHigh)
+      const box = mid(cat.boxLow, cat.boxHigh)
+      const allIn = globalCogs + refurb + box
+      const sellPct = mid(cat.sellPctLow, cat.sellPctHigh)
+      const margin = (globalMsrp * sellPct / 100 * cat.passRate) - allIn
+      const roi = allIn > 0 ? (margin / allIn) * 100 : 0
+      return {
+        name: cat.name,
+        "Sell %" : sellPct,
+        "Pass Rate": cat.passRate * 100,
+        "ROI": Math.max(0, roi),
+        "Margin": Math.max(0, margin),
+      }
+    })
+  }, [globalCogs, globalMsrp, activeCategories])
+
+  // Sensitivity matrix
+  const sensitivityData = useMemo(() => {
+    const cogsValues = [5, 10, 15, 20, 30, 40, 50]
+    const msrpValues = [100, 200, 300, 500, 750, 1000]
+    return cogsValues.map(cogs => {
+      const row: any = { cogs: `$${cogs}` }
+      for (const msrp of msrpValues) {
+        let totalMargin = 0
+        for (const cat of effectiveCategories) {
+          const allIn = cogs + mid(cat.refurbLow, cat.refurbHigh) + mid(cat.boxLow, cat.boxHigh)
+          const sell = msrp * mid(cat.sellPctLow, cat.sellPctHigh) / 100
+          totalMargin += (sell * cat.passRate) - allIn
+        }
+        row[`$${msrp}`] = Math.round(totalMargin / activeCategories.length)
+      }
+      return row
+    })
+  }, [activeCategories])
+
+  // Refurb vs Wholesale comparison
+  const vsWholesaleData = useMemo(() => {
+    const wholesaleRate = 0.15
+    return activeCategories.map(cat => {
+      const refurb = mid(cat.refurbLow, cat.refurbHigh)
+      const box = mid(cat.boxLow, cat.boxHigh)
+      const allIn = globalCogs + refurb + box
+      const sellPct = mid(cat.sellPctLow, cat.sellPctHigh) / 100
+      const refurbProfit = (globalMsrp * sellPct * cat.passRate) - allIn
+      const wholesaleProfit = (globalMsrp * wholesaleRate) - globalCogs
+      return { name: cat.name, refurbProfit: Math.round(refurbProfit), wholesaleProfit: Math.round(wholesaleProfit), uplift: Math.round(refurbProfit - wholesaleProfit) }
+    }).sort((a, b) => b.uplift - a.uplift)
+  }, [globalCogs, globalMsrp, activeCategories])
+
+  // Scenario computations with channel costs
+  const scenarioRows = useMemo(() => {
+    return items.map(item => {
+      const cat = getCategoryDef(item.categoryId) || CATEGORIES[0]
+      const channel = SALES_CHANNELS[item.salesChannel || salesChannel]
+      const refurb = mid(cat.refurbLow, cat.refurbHigh)
+      const box = item.needsBox ? mid(cat.boxLow, cat.boxHigh) : 0
+      // Channel costs
+      const platformFee = item.sellPrice * (channel.platformFeePct / 100)
+      const shipping = channel.avgShipping
+      // All-in cost now includes channel costs
+      const allIn = item.cogs + refurb + box + platformFee + shipping
+      const margin = item.sellPrice - allIn
+      const sellableQty = Math.round(item.qty * cat.passRate)
+      const totalCost = (item.cogs + refurb + box) * item.qty // Base costs
+      const totalChannelCosts = (platformFee + shipping) * sellableQty // Channel costs on sellable units
+      const totalRevenue = item.sellPrice * sellableQty
+      const profit = totalRevenue - totalCost - totalChannelCosts
+      const roi = totalCost > 0 ? (profit / totalCost) * 100 : 0
+      // Breakeven calculations: max refurb cost where margin = 0
+      const breakevenRefurb = (item.sellPrice * cat.passRate) - item.cogs - box - platformFee - shipping
+      const refurbPctOfBreakeven = breakevenRefurb > 0 ? (refurb / breakevenRefurb) * 100 : 100
+      const marginSensitivity = breakevenRefurb > 0 ? refurbPctOfBreakeven : 100
+      const isMarginRisky = marginSensitivity >= 60
+      return { ...item, cat, refurb, box, platformFee, shipping, allIn, margin, sellableQty, totalCost, totalChannelCosts, totalRevenue, profit, roi, breakevenRefurb, refurbPctOfBreakeven, marginSensitivity, isMarginRisky, channelName: channel.name }
+    })
+  }, [items, liveCategoryData, salesChannel])
+
+  const scenarioTotals = useMemo(() => {
+    const cost = scenarioRows.reduce((s, r) => s + r.totalCost, 0)
+    const revenue = scenarioRows.reduce((s, r) => s + r.totalRevenue, 0)
+    const profit = revenue - cost
+    return { cost, revenue, profit, marginPct: revenue > 0 ? (profit / revenue) * 100 : 0, roi: cost > 0 ? (profit / cost) * 100 : 0, units: scenarioRows.reduce((s, r) => s + r.qty, 0) }
+  }, [scenarioRows])
+
+  const scenarioChartData = useMemo(() => scenarioRows.map(r => ({
+    name: r.cat.name, profit: Math.round(r.profit), cost: Math.round(r.totalCost), revenue: Math.round(r.totalRevenue), roi: Math.round(r.roi),
+  })), [scenarioRows])
+
+  // Breakeven chart data for scenario items
+  const breakevenChartData = useMemo(() => scenarioRows.map(r => ({
+    name: r.cat.name,
+    refurbCost: r.refurb,
+    breakevenRefurb: Math.max(0, r.breakevenRefurb),
+    headroom: Math.max(0, r.breakevenRefurb - r.refurb),
+    pctUsed: Math.min(100, r.refurbPctOfBreakeven),
+    isOverBreakeven: r.refurbPctOfBreakeven >= 100,
+  })), [scenarioRows])
+
+  // Category marginal revenue curves data
+  const marginalRevenueCurves = useMemo(() => {
+    const refurbCosts = [0, 10, 20, 30, 40, 50, 60, 70, 80]
+    return refurbCosts.map(refurbCost => {
+      const point: any = { refurbCost: `$${refurbCost}` }
+      for (const cat of effectiveCategories) {
+        const box = mid(cat.boxLow, cat.boxHigh)
+        const allIn = globalCogs + refurbCost + box
+        const sellPct = mid(cat.sellPctLow, cat.sellPctHigh) / 100
+        const sellPrice = globalMsrp * sellPct
+        const margin = (sellPrice * cat.passRate) - allIn
+        point[cat.name] = Math.round(margin)
+      }
+      return point
+    })
+  }, [globalCogs, globalMsrp, activeCategories])
+
+  // Category breakeven summary
+  const categoryBreakevenData = useMemo(() => {
+    return activeCategories.map(cat => {
+      const box = mid(cat.boxLow, cat.boxHigh)
+      const sellPct = mid(cat.sellPctLow, cat.sellPctHigh) / 100
+      const sellPrice = globalMsrp * sellPct
+      const breakevenRefurb = (sellPrice * cat.passRate) - globalCogs - box
+      const actualRefurb = mid(cat.refurbLow, cat.refurbHigh)
+      const pctOfBreakeven = breakevenRefurb > 0 ? (actualRefurb / breakevenRefurb) * 100 : 100
+      return {
+        name: cat.name,
+        tier: cat.tier,
+        breakevenRefurb: Math.round(breakevenRefurb),
+        actualRefurb,
+        headroom: Math.round(breakevenRefurb - actualRefurb),
+        pctOfBreakeven: Math.round(pctOfBreakeven),
+        status: pctOfBreakeven >= 100 ? "danger" : pctOfBreakeven >= 60 ? "warning" : "safe",
+      }
+    }).sort((a, b) => a.pctOfBreakeven - b.pctOfBreakeven)
+  }, [globalCogs, globalMsrp, activeCategories])
+
+  // Category line colors for multi-line chart
+  const CAT_LINE_COLORS = ["oklch(0.72 0.15 185)", "oklch(0.70 0.18 160)", "oklch(0.75 0.16 85)", "oklch(0.65 0.20 30)", "oklch(0.60 0.18 40)", "oklch(0.55 0.15 280)", "oklch(0.68 0.14 200)", "oklch(0.62 0.16 140)", "oklch(0.58 0.12 320)"]
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Refurb Projections</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Model refurb costs, margins, and revenue projections by product category
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          {liveData.loaded && liveData.totalItems > 0 && (
+            <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+              <Zap className="h-3.5 w-3.5 text-primary" />
+              <span>Live data: {liveData.totalItems.toLocaleString()} items, {fmt(liveData.totalMsrp)} MSRP, {(liveData.avgCogsPercent * 100).toFixed(1)}% COGS ratio</span>
+            </div>
+          )}
+          <ThemeToggle />
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <KPICard title="Categories" value={String(activeCategories.length)} />
+        <KPICard title="Avg Refurb Cost" value={`$${avgRefurbCost}`} delta={-12.5} deltaLabel="vs outsourcing" />
+        <KPICard title="Avg Sell % MSRP" value={`${avgSellPct}%`} />
+        <KPICard title="Break-Even" value={`${breakEvenRate}%`} deltaLabel="of MSRP" />
+        <KPICard title={`${timeLabel} Profit`} value={fmtK(volumeTotals.profit)} delta={volumeTotals.roi} deltaLabel="ROI" />
+        <KPICard title="50/50 Split" value={fmtK(volumeTotals.profit / 2)} deltaLabel="Sam / Connor" />
+      </div>
+
+      {/* Global Settings */}
+      <Card className="border-border bg-card">
+        <CardHeader className="pb-2">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <CardTitle className="text-base font-semibold text-card-foreground">Projection Settings</CardTitle>
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Sales Channel Toggle */}
+              <div className="flex items-center gap-1 rounded-lg border border-border p-0.5">
+                {(["wholesale", "ecommerce", "retail"] as const).map(ch => (
+                  <button key={ch} onClick={() => setSalesChannel(ch)} className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${salesChannel === ch ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                    {SALES_CHANNELS[ch].name}
+                  </button>
+                ))}
+              </div>
+              {/* Time Horizon Toggle */}
+              <div className="flex items-center gap-1 rounded-lg border border-border p-0.5">
+                {(["monthly", "quarterly", "annual"] as const).map(h => (
+                  <button key={h} onClick={() => setTimeHorizon(h)} className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${timeHorizon === h ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                    {h.charAt(0).toUpperCase() + h.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Channel Info Banner */}
+          <div className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+            <span className="font-semibold text-card-foreground">{SALES_CHANNELS[salesChannel].name}:</span> {SALES_CHANNELS[salesChannel].description}
+            <span className="ml-2 text-primary">({SALES_CHANNELS[salesChannel].sellPct}% of MSRP{SALES_CHANNELS[salesChannel].platformFeePct > 0 && `, ${SALES_CHANNELS[salesChannel].platformFeePct}% platform fee`}{SALES_CHANNELS[salesChannel].avgShipping > 0 && `, $${SALES_CHANNELS[salesChannel].avgShipping} avg shipping`})</span>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Category Selector */}
+          <div>
+            <Label className="text-sm text-muted-foreground flex items-center gap-2">
+              Product Category
+              {selectedCategory !== "all" && liveCategoryData.find(lc => lc.category === selectedCategory) && (
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary bg-primary/10">Live Data</Badge>
+              )}
+            </Label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-medium"
+            >
+              <option value="all">All Categories (Blended Average)</option>
+              <optgroup label="Categories with Live Data">
+                {liveCategoryData
+                  .sort((a, b) => b.totalQty - a.totalQty)
+                  .map(cat => (
+                    <option key={cat.category} value={cat.category}>
+                      {cat.category} — {cat.totalQty.toLocaleString()} units, ${Math.round(cat.avgMsrp)} avg MSRP
+                    </option>
+                  ))}
+              </optgroup>
+            </select>
+            {selectedCategory !== "all" && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                {(() => {
+                  const catData = liveCategoryData.find(lc => lc.category === selectedCategory)
+                  if (!catData) return null
+                  return (
+                    <span className="flex items-center gap-3">
+                      <span>Items: <strong className="text-card-foreground">{catData.itemCount.toLocaleString()}</strong></span>
+                      <span>Total Qty: <strong className="text-card-foreground">{catData.totalQty.toLocaleString()}</strong></span>
+                      <span>Total MSRP: <strong className="text-primary">{fmtK(catData.totalMsrp)}</strong></span>
+                      <span>Avg COGS: <strong className="text-card-foreground">${catData.avgCogsPerUnit.toFixed(2)}</strong></span>
+                    </span>
+                  )
+                })()}
+              </div>
+            )}
+          </div>
+
+          {/* Sliders */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <Label className="text-sm text-muted-foreground flex items-center gap-2">
+                Avg COGS per Unit
+                {selectedCategory !== "all" && <span className="text-[10px] text-primary">(from DB)</span>}
+              </Label>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="font-mono text-lg font-bold text-card-foreground w-12">${globalCogs}</span>
+                <Slider value={[globalCogs]} onValueChange={(v) => setGlobalCogs(v[0])} min={1} max={200} step={1} className="flex-1" />
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm text-muted-foreground flex items-center gap-2">
+                Avg MSRP per Unit
+                {selectedCategory !== "all" && <span className="text-[10px] text-primary">(from DB)</span>}
+              </Label>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="font-mono text-lg font-bold text-card-foreground w-16">${globalMsrp}</span>
+                <Slider value={[globalMsrp]} onValueChange={(v) => setGlobalMsrp(v[0])} min={50} max={1500} step={10} className="flex-1" />
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm text-muted-foreground">{timeLabel} Volume (units)</Label>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="font-mono text-lg font-bold text-card-foreground w-16">{(monthlyVolume * timeMult).toLocaleString()}</span>
+                <Slider value={[monthlyVolume]} onValueChange={(v) => setMonthlyVolume(v[0])} min={50} max={5000} step={50} className="flex-1" />
+              </div>
+            </div>
+          </div>
+          
+          {/* Recovery Rate Slider */}
+          <div className="mt-4 pt-4 border-t border-border">
+            <Label className="text-sm font-semibold text-card-foreground flex items-center gap-2">
+              Recovery Rate (% of MSRP)
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary bg-primary/10">
+                Sell @ {recoveryRate}% = ${Math.round(globalMsrp * recoveryRate / 100)}
+              </Badge>
+            </Label>
+            <p className="text-xs text-muted-foreground mt-1">
+              What percentage of MSRP you expect to sell refurbished items for (typically 30-50%)
+            </p>
+            <div className="mt-3 flex items-center gap-3">
+              <span className="font-mono text-lg font-bold text-primary w-16">{recoveryRate}%</span>
+              <Slider 
+                value={[recoveryRate]} 
+                onValueChange={(v) => setRecoveryRate(v[0])} 
+                min={20} 
+                max={60} 
+                step={1} 
+                className="flex-1" 
+              />
+            </div>
+            <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
+              <span>Wholesale (20-25%)</span>
+              <span>Marketplace (35-45%)</span>
+              <span>Retail (50-60%)</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tabs */}
+      <Tabs defaultValue="overview">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="economics">Economic Analysis</TabsTrigger>
+          <TabsTrigger value="compare">Compare</TabsTrigger>
+          <TabsTrigger value="scenario">Scenario Builder</TabsTrigger>
+        </TabsList>
+
+        {/* ── OVERVIEW ───────────────────────────────────────────────── */}
+        <TabsContent value="overview" className="space-y-6 mt-4">
+          {/* Category Tier Ranking */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {(["S", "A", "B", "C"] as const).map(tier => {
+              const cats = CATEGORIES.filter(c => c.tier === tier && c.refurbLow > 0)
+              return (
+                <Card key={tier} className="border-border bg-card">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg border text-sm font-bold ${TIER_BG[tier]}`}>{tier}</span>
+                      <span className="text-sm font-semibold text-card-foreground">{tier === "S" ? "Best" : tier === "A" ? "Great" : tier === "B" ? "Good" : "Risky"}</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {cats.map(c => (
+                        <div key={c.id} className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground truncate mr-2">{c.name}</span>
+                          <span className="font-mono text-card-foreground">
+                            {fmt(Math.round((globalMsrp * mid(c.sellPctLow, c.sellPctHigh) / 100 * c.passRate) - globalCogs - mid(c.refurbLow, c.refurbHigh) - mid(c.boxLow, c.boxHigh)))}
+                          </span>
+                        </div>
+                      ))}
+                      {cats.length === 0 && <p className="text-xs text-muted-foreground italic">No data</p>}
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+
+          {/* Reference Table */}
+          <Card className="border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold text-card-foreground">Refurb Cost Reference — Sam&apos;s Data</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DataTable columns={refColumns} data={refTableData} getRowClassName={(row) => (row as RefRow).passRate < 1 ? "bg-destructive/5" : ""} />
+            </CardContent>
+          </Card>
+
+          {/* 3-col: Margin Chart + Waterfall + Pie */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <Card className="border-border bg-card lg:col-span-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-semibold text-card-foreground">Margin Comparison by Category</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground mb-4">${globalMsrp} MSRP, ${globalCogs} COGS — sorted by margin</p>
+                <div className="h-[380px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={compData} layout="vertical" margin={{ left: 120, right: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.35 0.02 260)" />
+                      <XAxis type="number" tickFormatter={(v) => `$${v}`} fontSize={12} stroke="oklch(0.65 0.01 260)" />
+                      <YAxis type="category" dataKey="name" width={110} fontSize={12} stroke="oklch(0.65 0.01 260)" />
+                      <Tooltip formatter={(v: number, name: string) => [name === "ROI" ? `${v}%` : `$${v}`, name]} contentStyle={DarkTooltipStyle} labelStyle={{ color: "oklch(0.95 0.01 260)", fontWeight: 600 }} itemStyle={{ color: "oklch(0.85 0.01 260)" }} />
+                      <Legend />
+                      <Bar dataKey="cogs" name="COGS" fill="oklch(0.65 0.20 30)" stackId="cost" />
+                      <Bar dataKey="refurb" name="Refurb" fill="oklch(0.72 0.15 185)" stackId="cost" />
+                      <Bar dataKey="box" name="Box" fill="oklch(0.75 0.16 85)" stackId="cost" />
+                      <Bar dataKey="margin" name="Margin" fill="oklch(0.70 0.18 160)" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-4">
+              {/* Waterfall */}
+              <Card className="border-border bg-card">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-semibold text-card-foreground">Per-Unit Flow</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {waterfallData.map((d, i) => {
+                      const maxVal = Math.max(...waterfallData.map(w => Math.abs(w.value)))
+                      const pct = Math.abs(d.value) / maxVal * 100
+                      return (
+                        <div key={d.name} className="flex items-center gap-3">
+                          <span className="text-xs text-muted-foreground w-16 text-right">{d.name}</span>
+                          <div className="flex-1 h-6 rounded-md overflow-hidden bg-muted/30 relative">
+                            <div className="h-full rounded-md transition-all" style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: d.fill }} />
+                          </div>
+                          <span className={`text-xs font-mono font-semibold w-14 text-right ${d.value >= 0 ? (i === waterfallData.length - 1 ? "text-primary" : "") : "text-destructive"}`}>
+                            {d.value >= 0 ? "" : "−"}${Math.abs(d.value)}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Pie */}
+              <Card className="border-border bg-card">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-semibold text-card-foreground">Cost Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[180px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={pieData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={3} dataKey="value">
+                          {pieData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
+                        </Pie>
+                        <Tooltip formatter={(v: number) => [`$${v}`, ""]} contentStyle={DarkTooltipStyle} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="space-y-1.5">
+                    {pieData.map(d => (
+                      <div key={d.name} className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: d.fill }} /><span className="text-muted-foreground">{d.name}</span></div>
+                        <span className="font-mono font-medium">${d.value}</span>
+                      </div>
+                    ))}
+                    <div className="border-t border-border pt-1.5 flex items-center justify-between text-xs font-semibold">
+                      <span>All-In</span><span className="font-mono">${pieData.reduce((s, d) => s + d.value, 0)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Volume Projection + Profit Split */}
+          <Card className="border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold text-card-foreground">{timeLabel} Volume Projection ({(monthlyVolume * timeMult).toLocaleString()} units)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={volumeData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.35 0.02 260)" />
+                    <XAxis dataKey="name" stroke="oklch(0.65 0.01 260)" fontSize={11} angle={-30} textAnchor="end" height={60} />
+                    <YAxis stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => fmtK(v)} />
+                    <Tooltip content={<ScenarioTooltip />} />
+                    <Legend />
+                    <Bar dataKey="cost" name="Investment" fill="oklch(0.65 0.20 30)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="profit" name="Profit" radius={[4, 4, 0, 0]}>
+                      {volumeData.map((entry, i) => <Cell key={i} fill={entry.profit >= 0 ? "oklch(0.70 0.18 160)" : "oklch(0.55 0.15 30)"} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Totals + Profit Split */}
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-6 gap-4 rounded-lg bg-muted/50 p-4">
+                <div>
+                  <p className="text-xs text-muted-foreground">Units</p>
+                  <p className="text-lg font-mono font-bold text-card-foreground">{(monthlyVolume * timeMult).toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Investment</p>
+                  <p className="text-lg font-mono font-bold text-card-foreground">{fmtK(volumeTotals.cost)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Revenue</p>
+                  <p className="text-lg font-mono font-bold text-card-foreground">{fmtK(volumeTotals.revenue)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Total Profit</p>
+                  <p className={`text-lg font-mono font-bold ${volumeTotals.profit >= 0 ? "text-primary" : "text-destructive"}`}>{fmtK(volumeTotals.profit)}</p>
+                </div>
+                <div className="border-l border-border pl-4">
+                  <p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="h-3 w-3" /> Sam&apos;s 50%</p>
+                  <p className="text-lg font-mono font-bold text-primary">{fmtK(volumeTotals.profit / 2)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="h-3 w-3" /> Connor&apos;s 50%</p>
+                  <p className="text-lg font-mono font-bold text-primary">{fmtK(volumeTotals.profit / 2)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── ECONOMIC ANALYSIS ──────────────────────────────────────── */}
+        <TabsContent value="economics" className="space-y-6 mt-4">
+          {/* Main Economic Chart */}
+          <Card className="border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold text-card-foreground">Economic Analysis: Revenue vs Cost by Recovery Rate</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[450px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={economicData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
+                    <defs>
+                      <linearGradient id="profitZone" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="oklch(0.70 0.18 160)" stopOpacity={0.2} /><stop offset="95%" stopColor="oklch(0.70 0.18 160)" stopOpacity={0.05} />
+                      </linearGradient>
+                      <linearGradient id="lossZone" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="oklch(0.65 0.20 30)" stopOpacity={0.2} /><stop offset="95%" stopColor="oklch(0.65 0.20 30)" stopOpacity={0.05} />
+                      </linearGradient>
+                      <linearGradient id="targetZone" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="oklch(0.75 0.16 85)" stopOpacity={0.3} /><stop offset="95%" stopColor="oklch(0.75 0.16 85)" stopOpacity={0.1} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.35 0.02 260)" />
+                    <XAxis dataKey="rate" stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => `${v}%`} label={{ value: "Sell Price as % of MSRP", position: "insideBottom", offset: -10, style: { fill: "oklch(0.65 0.01 260)", fontSize: 13, fontWeight: 600 } }} />
+                    <YAxis stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => `$${v}`} />
+                    <Tooltip content={<EconomicTooltip />} cursor={{ stroke: "oklch(0.65 0.01 260)", strokeWidth: 1, strokeDasharray: "5 5" }} />
+                    <Legend verticalAlign="top" height={36} iconType="line" />
+                    <ReferenceLine x={breakEvenRate} stroke="oklch(0.75 0.16 85)" strokeWidth={2} strokeDasharray="8 4" label={{ value: `Break-Even: ${breakEvenRate}%`, fill: "oklch(0.75 0.16 85)", fontSize: 12, fontWeight: 600, position: "top" }} />
+                    <ReferenceArea x1={breakEvenRate} x2={80} fill="url(#profitZone)" fillOpacity={0.3} />
+                    <ReferenceArea x1={15} x2={breakEvenRate} fill="url(#lossZone)" fillOpacity={0.3} />
+                    <ReferenceArea x1={40} x2={60} fill="url(#targetZone)" fillOpacity={0.5} label={{ value: "Target Zone", fill: "oklch(0.75 0.16 85)", fontSize: 12, fontWeight: 700, position: "insideTop" }} />
+                    <Line type="monotone" dataKey="sellRevenue" stroke="oklch(0.72 0.15 185)" strokeWidth={3} dot={false} name="Sell Revenue" />
+                    <Line type="monotone" dataKey="totalCost" stroke="oklch(0.65 0.20 30)" strokeWidth={3} dot={false} name="All-In Cost" strokeDasharray="5 5" />
+                    <Area type="monotone" dataKey="profit" stroke="oklch(0.70 0.18 160)" fill="oklch(0.70 0.18 160)" fillOpacity={0.4} strokeWidth={2} name="Profit" dot={false} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Per-Category Profit Curves */}
+          <Card className="border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold text-card-foreground">Per-Category Profit Curves</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground mb-4">Each line shows a single category&apos;s profit at different recovery rates</p>
+              <div className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={categoryProfitCurves} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.35 0.02 260)" />
+                    <XAxis dataKey="rate" stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => `${v}%`} />
+                    <YAxis stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => `$${v}`} />
+                    <Tooltip content={<CategoryTooltip />} />
+                    <Legend />
+                    <ReferenceLine y={0} stroke="oklch(0.45 0.02 260)" strokeWidth={1.5} strokeDasharray="6 4" />
+                    {activeCategories.map((cat, i) => (
+                      <Line key={cat.id} type="monotone" dataKey={cat.name} stroke={CAT_LINE_COLORS[i % CAT_LINE_COLORS.length]} strokeWidth={2} dot={{ r: 3, strokeWidth: 0, fill: CAT_LINE_COLORS[i % CAT_LINE_COLORS.length] }} />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 2-col: Profit + ROI bars */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card className="border-border bg-card">
+              <CardHeader className="pb-2"><CardTitle className="text-base font-semibold text-card-foreground">Profit by Recovery Rate</CardTitle></CardHeader>
+              <CardContent>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={economicData.filter((_, i) => i % 3 === 0)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.35 0.02 260)" />
+                      <XAxis dataKey="rate" stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => `${v}%`} />
+                      <YAxis stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => `$${v}`} />
+                      <Tooltip content={<EconomicTooltip />} />
+                      <ReferenceLine y={0} stroke="oklch(0.25 0.02 260)" />
+                      <Bar dataKey="profit" name="Avg Profit" radius={[4, 4, 0, 0]}>
+                        {economicData.filter((_, i) => i % 3 === 0).map((entry, i) => <Cell key={i} fill={entry.profit >= 0 ? "oklch(0.70 0.18 160)" : "oklch(0.55 0.15 30)"} />)}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-border bg-card">
+              <CardHeader className="pb-2"><CardTitle className="text-base font-semibold text-card-foreground">ROI by Recovery Rate</CardTitle></CardHeader>
+              <CardContent>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={economicData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <defs>
+                        <linearGradient id="roiGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="oklch(0.72 0.15 185)" stopOpacity={0.3} /><stop offset="95%" stopColor="oklch(0.72 0.15 185)" stopOpacity={0.05} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.35 0.02 260)" />
+                      <XAxis dataKey="rate" stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => `${v}%`} />
+                      <YAxis stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => `${v}%`} />
+                      <Tooltip formatter={(v: number) => [`${v.toFixed(1)}%`, "ROI"]} contentStyle={DarkTooltipStyle} labelFormatter={(l) => `${l}% of MSRP`} />
+                      <ReferenceLine y={0} stroke="oklch(0.25 0.02 260)" />
+                      <Area type="monotone" dataKey="roi" stroke="oklch(0.72 0.15 185)" fill="url(#roiGrad)" strokeWidth={2} dot={false} name="ROI %" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Break-Even + Sensitivity */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card className="border-border bg-card">
+              <CardHeader className="pb-2"><CardTitle className="text-base font-semibold text-card-foreground">Break-Even Analysis</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div><p className="text-sm text-muted-foreground">Break-Even Recovery</p><p className="text-2xl font-bold text-primary">{breakEvenRate}%</p></div>
+                  <div><p className="text-sm text-muted-foreground">Break-Even Sell Price</p><p className="text-2xl font-bold text-foreground">{fmt(Math.round(globalMsrp * breakEvenRate / 100))}</p></div>
+                  <div><p className="text-sm text-muted-foreground">Avg All-In Cost</p><p className="text-2xl font-bold text-foreground">${pieData.reduce((s, d) => s + d.value, 0)}</p></div>
+                  <div><p className="text-sm text-muted-foreground">Best Category</p><p className="text-2xl font-bold text-primary">{compData[0]?.name || "—"}</p><p className="text-xs text-muted-foreground">{fmt(compData[0]?.margin || 0)} margin, {compData[0]?.roi}% ROI</p></div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  At ${globalCogs} COGS + ${avgRefurbCost} avg refurb, sell above {breakEvenRate}% of MSRP ({fmt(Math.round(globalMsrp * breakEvenRate / 100))}) to profit. Target: 40–60%.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border bg-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-semibold text-card-foreground flex items-center gap-2"><Calculator className="h-4 w-4" /> Sensitivity Matrix</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground mb-3">Avg margin per unit at different COGS x MSRP combinations</p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr>
+                        <th className="px-2 py-1.5 text-left text-muted-foreground font-semibold">COGS ↓</th>
+                        {["$100", "$200", "$300", "$500", "$750", "$1000"].map(h => <th key={h} className="px-2 py-1.5 text-right text-muted-foreground font-semibold">{h}</th>)}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sensitivityData.map((row, i) => (
+                        <tr key={i} className="border-t border-border">
+                          <td className="px-2 py-1.5 font-mono font-semibold text-muted-foreground">{row.cogs}</td>
+                          {["$100", "$200", "$300", "$500", "$750", "$1000"].map(h => {
+                            const val = row[h] as number
+                            return (
+                              <td key={h} className="px-2 py-1.5 text-right font-mono">
+                                <span className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold ${val >= 50 ? "bg-green-500/20 text-green-400" : val >= 0 ? "bg-yellow-500/15 text-yellow-400" : "bg-red-500/15 text-red-400"}`}>
+                                  ${val}
+                                </span>
+                              </td>
+                            )
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* ── COMPARE ────────────────────────────────────────────────── */}
+        <TabsContent value="compare" className="space-y-6 mt-4">
+          {/* Refurb vs Wholesale */}
+          <Card className="border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold text-card-foreground">Refurb vs Wholesale (15% of MSRP)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground mb-4">Profit uplift from refurbishing vs selling wholesale at 15% of MSRP</p>
+              <div className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={vsWholesaleData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.35 0.02 260)" />
+                    <XAxis dataKey="name" stroke="oklch(0.65 0.01 260)" fontSize={11} angle={-30} textAnchor="end" height={60} />
+                    <YAxis stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => `$${v}`} />
+                    <Tooltip contentStyle={DarkTooltipStyle} formatter={(v: number, name: string) => [`$${v}`, name]} />
+                    <Legend />
+                    <ReferenceLine y={0} stroke="oklch(0.25 0.02 260)" />
+                    <Bar dataKey="wholesaleProfit" name="Wholesale Profit" fill="oklch(0.55 0.12 260)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="refurbProfit" name="Refurb Profit" fill="oklch(0.72 0.15 185)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="uplift" name="Refurb Uplift" fill="oklch(0.70 0.18 160)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              {/* Uplift summary */}
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 rounded-lg bg-muted/50 p-4">
+                <div>
+                  <p className="text-xs text-muted-foreground">Avg Wholesale Margin</p>
+                  <p className="text-lg font-mono font-bold text-card-foreground">{fmt(Math.round(vsWholesaleData.reduce((s, d) => s + d.wholesaleProfit, 0) / vsWholesaleData.length))}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Avg Refurb Margin</p>
+                  <p className="text-lg font-mono font-bold text-primary">{fmt(Math.round(vsWholesaleData.reduce((s, d) => s + d.refurbProfit, 0) / vsWholesaleData.length))}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Avg Uplift per Unit</p>
+                  <p className="text-lg font-mono font-bold text-primary">{fmt(Math.round(vsWholesaleData.reduce((s, d) => s + d.uplift, 0) / vsWholesaleData.length))}</p>
+                  <p className="text-xs text-muted-foreground">{Math.round((vsWholesaleData.reduce((s, d) => s + d.uplift, 0) / vsWholesaleData.length) / Math.max(1, vsWholesaleData.reduce((s, d) => s + d.wholesaleProfit, 0) / vsWholesaleData.length) * 100)}% more profit</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Radar chart */}
+          <Card className="border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold text-card-foreground">Category Comparison Radar</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={radarData}>
+                    <PolarGrid stroke="oklch(0.35 0.02 260)" />
+                    <PolarAngleAxis dataKey="name" tick={{ fill: "oklch(0.65 0.01 260)", fontSize: 11 }} />
+                    <PolarRadiusAxis tick={{ fill: "oklch(0.55 0.01 260)", fontSize: 10 }} />
+                    <Radar name="Sell %" dataKey="Sell %" stroke="oklch(0.72 0.15 185)" fill="oklch(0.72 0.15 185)" fillOpacity={0.2} />
+                    <Radar name="ROI" dataKey="ROI" stroke="oklch(0.70 0.18 160)" fill="oklch(0.70 0.18 160)" fillOpacity={0.2} />
+                    <Legend />
+                    <Tooltip contentStyle={DarkTooltipStyle} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* At-Scale Comparison */}
+          <Card className="border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold text-card-foreground">{timeLabel} Profit Split — Refurb vs Wholesale ({(monthlyVolume * timeMult).toLocaleString()} units)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Wholesale */}
+                <div className="rounded-lg border border-border p-5 bg-muted/20">
+                  <h4 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2"><Package className="h-4 w-4" /> Wholesale @ 15%</h4>
+                  {(() => {
+                    const wholesaleProfit = (globalMsrp * 0.15 - globalCogs) * monthlyVolume * timeMult
+                    return (
+                      <div className="space-y-3">
+                        <div className="flex justify-between"><span className="text-sm text-muted-foreground">Revenue</span><span className="font-mono font-semibold">{fmtK(globalMsrp * 0.15 * monthlyVolume * timeMult)}</span></div>
+                        <div className="flex justify-between"><span className="text-sm text-muted-foreground">COGS</span><span className="font-mono font-semibold text-destructive">{fmtK(globalCogs * monthlyVolume * timeMult)}</span></div>
+                        <div className="border-t border-border pt-3 flex justify-between"><span className="text-sm font-semibold">Net Profit</span><span className={`font-mono text-lg font-bold ${wholesaleProfit >= 0 ? "text-primary" : "text-destructive"}`}>{fmtK(wholesaleProfit)}</span></div>
+                        <div className="flex justify-between text-sm text-muted-foreground"><span>Sam&apos;s 50%</span><span className="font-mono">{fmtK(wholesaleProfit / 2)}</span></div>
+                        <div className="flex justify-between text-sm text-muted-foreground"><span>Connor&apos;s 50%</span><span className="font-mono">{fmtK(wholesaleProfit / 2)}</span></div>
+                      </div>
+                    )
+                  })()}
+                </div>
+                {/* Refurb */}
+                <div className="rounded-lg border border-primary/30 p-5 bg-primary/5">
+                  <h4 className="text-sm font-semibold text-primary mb-4 flex items-center gap-2"><Wrench className="h-4 w-4" /> Refurbished @ {avgSellPct}% <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px]">Better</Badge></h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between"><span className="text-sm text-muted-foreground">Revenue</span><span className="font-mono font-semibold">{fmtK(volumeTotals.revenue)}</span></div>
+                    <div className="flex justify-between"><span className="text-sm text-muted-foreground">All-In Cost</span><span className="font-mono font-semibold text-destructive">{fmtK(volumeTotals.cost)}</span></div>
+                    <div className="border-t border-border pt-3 flex justify-between"><span className="text-sm font-semibold">Net Profit</span><span className={`font-mono text-lg font-bold ${volumeTotals.profit >= 0 ? "text-primary" : "text-destructive"}`}>{fmtK(volumeTotals.profit)}</span></div>
+                    <div className="flex justify-between text-sm text-muted-foreground"><span>Sam&apos;s 50%</span><span className="font-mono">{fmtK(volumeTotals.profit / 2)}</span></div>
+                    <div className="flex justify-between text-sm text-muted-foreground"><span>Connor&apos;s 50%</span><span className="font-mono">{fmtK(volumeTotals.profit / 2)}</span></div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── SCENARIO BUILDER ───────────────────────────────────────── */}
+        <TabsContent value="scenario" className="space-y-6 mt-4">
+          <Card className="border-border bg-card">
+            <CardHeader className="pb-2">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                  <CardTitle className="text-base font-semibold text-card-foreground">Scenario Builder</CardTitle>
+                  <p className="mt-1 text-sm text-muted-foreground">Build custom projections — sell price auto-calculates from MSRP</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* Preset buttons */}
+                  {PRESETS.map(p => (
+                    <button key={p.name} onClick={() => loadPreset(p)} className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+                      <Zap className="h-3 w-3" />{p.name}
+                    </button>
+                  ))}
+                  <button onClick={() => addItem()} className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+                    <Plus className="h-4 w-4" />Add
+                  </button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {items.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-border p-12 text-center">
+                  <Wrench className="mx-auto h-12 w-12 text-muted-foreground/30" />
+                  <h3 className="mt-4 text-lg font-semibold text-card-foreground">No Items Yet</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">Use a preset or add individual categories</p>
+                  <div className="mt-6 flex flex-wrap justify-center gap-2">
+                    {PRESETS.map(p => (
+                      <button key={p.name} onClick={() => loadPreset(p)} className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium text-card-foreground hover:bg-muted/50 transition-colors">
+                        <Zap className="h-3 w-3 text-primary" />{p.name}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex flex-wrap justify-center gap-2">
+                    {CATEGORIES.filter(c => c.refurbLow > 0).map(cat => (
+                      <button key={cat.id} onClick={() => addItem(cat.id)} className="inline-flex items-center gap-1 rounded-md border border-border/50 bg-card px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted/50 transition-colors">
+                        <Plus className="h-3 w-3" />{cat.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-3">
+                    {scenarioRows.map((row) => (
+                      <div key={row.id} className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-muted/30">
+                        <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-4 items-end">
+                          <div className="col-span-2 md:col-span-1">
+                            <Label className="text-xs text-muted-foreground">Category</Label>
+                            <select value={row.categoryId} onChange={(e) => updateItem(row.id, { categoryId: e.target.value })} className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-medium">
+                              {allCategories.map(c => <option key={c.id} value={c.id}>{c.name}{c.id.startsWith('db-') ? ' 📊' : ''}</option>)}
+                            </select>
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground">Qty</Label>
+                            <Input type="number" value={row.qty} onChange={(e) => updateItem(row.id, { qty: Number(e.target.value) })} className="mt-1 font-mono" min={1} />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                              COGS
+                              {getCategoryLiveData(row.categoryId) && <Badge variant="outline" className="text-[9px] px-1 py-0 border-primary/30 text-primary bg-primary/10">DB</Badge>}
+                            </Label>
+                            <div className="mt-1 flex items-center gap-1">
+                              <span className="font-mono text-lg font-bold text-card-foreground">${row.cogs}</span>
+                              {getCategoryLiveData(row.categoryId) && (
+                                <span className="text-[10px] text-muted-foreground">/unit avg</span>
+                              )}
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                              MSRP
+                              {getCategoryLiveData(row.categoryId) && <Badge variant="outline" className="text-[9px] px-1 py-0 border-primary/30 text-primary bg-primary/10">DB</Badge>}
+                            </Label>
+                            <div className="mt-1 flex items-center gap-1">
+                              <span className="font-mono text-lg font-bold text-card-foreground">${row.msrp}</span>
+                              {getCategoryLiveData(row.categoryId) && (
+                                <span className="text-[10px] text-muted-foreground">/unit avg</span>
+                              )}
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground">Sell{row.msrp > 0 && <span className="ml-1 text-primary">({((row.sellPrice / row.msrp) * 100).toFixed(0)}%)</span>}</Label>
+                            <Input type="number" value={row.sellPrice} onChange={(e) => updateItem(row.id, { sellPrice: Number(e.target.value) })} className="mt-1 font-mono" min={0} />
+                          </div>
+                          <div className="col-span-2 md:col-span-1 flex items-end gap-4">
+                            <div className="flex-1">
+                              <p className="text-xs text-muted-foreground">Profit</p>
+                              <p className={`text-lg font-mono font-bold ${row.profit >= 0 ? "text-primary" : "text-destructive"}`}>{fmt(row.profit)}</p>
+                              <p className={`text-xs font-mono ${row.roi >= 0 ? "text-primary" : "text-destructive"}`}>{row.roi.toFixed(0)}% ROI</p>
+                            </div>
+                            <button onClick={() => removeItem(row.id)} className="mb-1 rounded-md p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"><Trash2 className="h-4 w-4" /></button>
+                          </div>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground border-t border-border pt-3">
+                          <span>Refurb: <strong className="text-card-foreground">${row.refurb}</strong></span>
+                          <span>Box: <strong className="text-card-foreground">${row.box.toFixed(0)}</strong></span>
+                          {row.platformFee > 0 && <span>Platform Fee: <strong className="text-orange-400">${row.platformFee.toFixed(2)}</strong></span>}
+                          {row.shipping > 0 && <span>Shipping: <strong className="text-orange-400">${row.shipping.toFixed(2)}</strong></span>}
+                          <span>All-In: <strong style={{ color: "oklch(0.75 0.16 85)" }}>${row.allIn.toFixed(2)}</strong></span>
+                          <span>Margin/unit: <strong className={row.margin >= 0 ? "text-primary" : "text-destructive"}>${row.margin.toFixed(2)}</strong></span>
+                          <span>Sellable: <strong className="text-card-foreground">{row.sellableQty}/{row.qty}</strong></span>
+                          <Badge variant="outline" className="text-[10px] border-muted-foreground/30">{row.channelName}</Badge>
+                          {row.cat.passRate < 1 && <Badge variant="destructive" className="text-xs"><AlertTriangle className="mr-1 h-3 w-3" />{Math.round(row.cat.passRate * 100)}% pass</Badge>}
+                        </div>
+                        {/* Breakeven Analysis Row */}
+                        <div className="mt-2 flex flex-wrap gap-3 text-xs border-t border-border/50 pt-2">
+                          <span className="flex items-center gap-1">
+                            <Target className="h-3 w-3 text-muted-foreground" />
+                            Breakeven Refurb: <strong className={row.breakevenRefurb > 0 ? "text-primary" : "text-destructive"}>${row.breakevenRefurb.toFixed(2)}</strong>
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <BarChart3 className="h-3 w-3 text-muted-foreground" />
+                            Refurb % of BE:
+                            <strong className={`${row.refurbPctOfBreakeven >= 100 ? "text-destructive" : row.refurbPctOfBreakeven >= 60 ? "text-warning" : "text-primary"}`}>
+                              {row.refurbPctOfBreakeven.toFixed(0)}%
+                            </strong>
+                          </span>
+                          {row.isMarginRisky && (
+                            <Badge variant="outline" className="text-xs border-warning/50 text-warning bg-warning/10">
+                              <AlertTriangle className="mr-1 h-3 w-3" />
+                              High margin sensitivity ({row.marginSensitivity.toFixed(0)}% of headroom used)
+                            </Badge>
+                          )}
+                          {row.refurbPctOfBreakeven >= 100 && (
+                            <Badge variant="destructive" className="text-xs">
+                              <AlertTriangle className="mr-1 h-3 w-3" />
+                              Negative margin! Refurb exceeds breakeven
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Totals + Profit Split */}
+                  <div className="mt-4 grid grid-cols-2 md:grid-cols-7 gap-4 rounded-lg bg-muted/50 p-4">
+                    <div><p className="text-xs text-muted-foreground">Units</p><p className="text-lg font-mono font-bold text-card-foreground">{scenarioTotals.units.toLocaleString()}</p></div>
+                    <div><p className="text-xs text-muted-foreground">Investment</p><p className="text-lg font-mono font-bold text-card-foreground">{fmtK(scenarioTotals.cost)}</p></div>
+                    <div><p className="text-xs text-muted-foreground">Revenue</p><p className="text-lg font-mono font-bold text-card-foreground">{fmtK(scenarioTotals.revenue)}</p></div>
+                    <div><p className="text-xs text-muted-foreground">Profit</p><p className={`text-lg font-mono font-bold ${scenarioTotals.profit >= 0 ? "text-primary" : "text-destructive"}`}>{fmtK(scenarioTotals.profit)}</p></div>
+                    <div><p className="text-xs text-muted-foreground">ROI</p><p className={`text-lg font-mono font-bold ${scenarioTotals.roi >= 0 ? "text-primary" : "text-destructive"}`}>{scenarioTotals.roi.toFixed(1)}%</p></div>
+                    <div className="border-l border-border pl-4"><p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="h-3 w-3" /> Sam</p><p className="text-lg font-mono font-bold text-primary">{fmtK(scenarioTotals.profit / 2)}</p></div>
+                    <div><p className="text-xs text-muted-foreground flex items-center gap-1"><Users className="h-3 w-3" /> Connor</p><p className="text-lg font-mono font-bold text-primary">{fmtK(scenarioTotals.profit / 2)}</p></div>
+                  </div>
+
+                  {/* Charts */}
+                  <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <Card className="border-border bg-card">
+                      <CardHeader className="pb-2"><CardTitle className="text-base font-semibold text-card-foreground">Investment vs Profit</CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="h-72">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={scenarioChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.35 0.02 260)" />
+                              <XAxis dataKey="name" stroke="oklch(0.65 0.01 260)" fontSize={11} />
+                              <YAxis stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={fmtK} />
+                              <Tooltip content={<ScenarioTooltip />} /><Legend />
+                              <Bar dataKey="cost" name="Investment" fill="oklch(0.65 0.20 30)" radius={[4, 4, 0, 0]} />
+                              <Bar dataKey="profit" name="Profit" radius={[4, 4, 0, 0]}>
+                                {scenarioChartData.map((e, i) => <Cell key={i} fill={e.profit >= 0 ? "oklch(0.70 0.18 160)" : "oklch(0.55 0.15 30)"} />)}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-border bg-card">
+                      <CardHeader className="pb-2"><CardTitle className="text-base font-semibold text-card-foreground">ROI by Line Item</CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="h-72">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={scenarioChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.35 0.02 260)" />
+                              <XAxis dataKey="name" stroke="oklch(0.65 0.01 260)" fontSize={11} />
+                              <YAxis stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => `${v}%`} />
+                              <Tooltip formatter={(v: number) => [`${v.toFixed(0)}%`, "ROI"]} contentStyle={DarkTooltipStyle} />
+                              <ReferenceLine y={0} stroke="oklch(0.25 0.02 260)" />
+                              <Bar dataKey="roi" name="ROI %" radius={[4, 4, 0, 0]}>
+                                {scenarioChartData.map((e, i) => <Cell key={i} fill={e.roi >= 0 ? "oklch(0.72 0.15 185)" : "oklch(0.55 0.15 30)"} />)}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Breakeven Analysis Section */}
+                  <div className="mt-6 space-y-4">
+                    <h3 className="text-lg font-semibold text-card-foreground flex items-center gap-2">
+                      <Target className="h-5 w-5 text-primary" />
+                      Breakeven Analysis & Margin Sensitivity
+                    </h3>
+
+                    {/* Breakeven Summary Cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {breakevenChartData.map((item, i) => (
+                        <div key={i} className={`rounded-lg border p-4 ${item.isOverBreakeven ? "border-destructive/50 bg-destructive/5" : item.pctUsed >= 60 ? "border-warning/50 bg-warning/5" : "border-primary/30 bg-primary/5"}`}>
+                          <p className="text-xs text-muted-foreground truncate">{item.name}</p>
+                          <div className="mt-2 flex items-baseline justify-between">
+                            <span className="text-2xl font-bold font-mono">${item.refurbCost}</span>
+                            <span className="text-xs text-muted-foreground">/ ${item.breakevenRefurb} BE</span>
+                          </div>
+                          <div className="mt-2">
+                            <div className="flex justify-between text-xs mb-1">
+                              <span className="text-muted-foreground">Used</span>
+                              <span className={item.pctUsed >= 100 ? "text-destructive font-bold" : item.pctUsed >= 60 ? "text-warning font-bold" : "text-primary font-medium"}>{item.pctUsed.toFixed(0)}%</span>
+                            </div>
+                            <div className="h-2 rounded-full bg-muted overflow-hidden">
+                              <div className={`h-full rounded-full transition-all ${item.pctUsed >= 100 ? "bg-destructive" : item.pctUsed >= 60 ? "bg-warning" : "bg-primary"}`} style={{ width: `${Math.min(100, item.pctUsed)}%` }} />
+                            </div>
+                          </div>
+                          {item.isOverBreakeven && (
+                            <p className="mt-2 text-xs text-destructive flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> Over breakeven!</p>
+                          )}
+                          {!item.isOverBreakeven && item.headroom > 0 && (
+                            <p className="mt-2 text-xs text-muted-foreground">Headroom: <span className="text-primary font-semibold">${item.headroom.toFixed(0)}</span></p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Marginal Revenue Curves Chart */}
+                    <Card className="border-border bg-card">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base font-semibold text-card-foreground">Marginal Revenue Curves by Category</CardTitle>
+                        <p className="text-xs text-muted-foreground mt-1">Shows profit/margin at different refurb costs — where line crosses $0 is the breakeven point</p>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="h-[400px]">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={marginalRevenueCurves} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.35 0.02 260)" />
+                              <XAxis dataKey="refurbCost" stroke="oklch(0.65 0.01 260)" fontSize={12} label={{ value: "Refurb Cost", position: "insideBottom", offset: -5, style: { fill: "oklch(0.65 0.01 260)", fontSize: 11 } }} />
+                              <YAxis stroke="oklch(0.65 0.01 260)" fontSize={12} tickFormatter={(v) => `$${v}`} label={{ value: "Margin/Unit", angle: -90, position: "insideLeft", style: { fill: "oklch(0.65 0.01 260)", fontSize: 11 } }} />
+                              <Tooltip content={<CategoryTooltip />} />
+                              <Legend />
+                              <ReferenceLine y={0} stroke="oklch(0.75 0.16 85)" strokeWidth={2} strokeDasharray="8 4" label={{ value: "Breakeven", fill: "oklch(0.75 0.16 85)", fontSize: 10, position: "right" }} />
+                              {activeCategories.map((cat, i) => (
+                                <Line key={cat.id} type="monotone" dataKey={cat.name} stroke={CAT_LINE_COLORS[i % CAT_LINE_COLORS.length]} strokeWidth={2} dot={{ r: 3, strokeWidth: 0, fill: CAT_LINE_COLORS[i % CAT_LINE_COLORS.length] }} />
+                              ))}
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Category Breakeven Table */}
+                    <Card className="border-border bg-card">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base font-semibold text-card-foreground">Category Breakeven Summary</CardTitle>
+                        <p className="text-xs text-muted-foreground mt-1">All categories ranked by margin safety (lower % = safer)</p>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b border-border">
+                                <th className="px-3 py-2 text-left text-muted-foreground font-medium">Category</th>
+                                <th className="px-3 py-2 text-center text-muted-foreground font-medium">Tier</th>
+                                <th className="px-3 py-2 text-right text-muted-foreground font-medium">Actual Refurb</th>
+                                <th className="px-3 py-2 text-right text-muted-foreground font-medium">Breakeven Refurb</th>
+                                <th className="px-3 py-2 text-right text-muted-foreground font-medium">Headroom</th>
+                                <th className="px-3 py-2 text-right text-muted-foreground font-medium">% of Breakeven</th>
+                                <th className="px-3 py-2 text-center text-muted-foreground font-medium">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {categoryBreakevenData.map((row, i) => (
+                                <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
+                                  <td className="px-3 py-2 font-medium">{row.name}</td>
+                                  <td className="px-3 py-2 text-center">
+                                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-md border text-xs font-bold ${TIER_BG[row.tier]}`}>{row.tier}</span>
+                                  </td>
+                                  <td className="px-3 py-2 text-right font-mono">${row.actualRefurb}</td>
+                                  <td className="px-3 py-2 text-right font-mono text-primary">${row.breakevenRefurb}</td>
+                                  <td className={`px-3 py-2 text-right font-mono ${row.headroom < 0 ? "text-destructive" : "text-primary"}`}>${row.headroom}</td>
+                                  <td className={`px-3 py-2 text-right font-mono font-semibold ${row.status === "danger" ? "text-destructive" : row.status === "warning" ? "text-warning" : "text-primary"}`}>{row.pctOfBreakeven}%</td>
+                                  <td className="px-3 py-2 text-center">
+                                    {row.status === "danger" ? (
+                                      <Badge variant="destructive" className="text-xs"><AlertTriangle className="mr-1 h-3 w-3" />Danger</Badge>
+                                    ) : row.status === "warning" ? (
+                                      <Badge variant="outline" className="text-xs border-warning/50 text-warning bg-warning/10"><AlertTriangle className="mr-1 h-3 w-3" />Warning</Badge>
+                                    ) : (
+                                      <Badge variant="outline" className="text-xs border-primary/50 text-primary bg-primary/10">Safe</Badge>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}

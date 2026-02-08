@@ -1,10 +1,58 @@
 @import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
-/* Deep Navy Executive Theme - Sourcing Platform */
+/* Light Mode - Clean Professional Theme */
 :root {
+  --background: oklch(0.98 0.01 260);
+  --foreground: oklch(0.15 0.02 260);
+  --card: oklch(1.0 0 0);
+  --card-foreground: oklch(0.15 0.02 260);
+  --popover: oklch(1.0 0 0);
+  --popover-foreground: oklch(0.15 0.02 260);
+  --primary: oklch(0.55 0.18 185);
+  --primary-foreground: oklch(0.98 0.01 260);
+  --secondary: oklch(0.94 0.01 260);
+  --secondary-foreground: oklch(0.15 0.02 260);
+  --muted: oklch(0.94 0.01 260);
+  --muted-foreground: oklch(0.45 0.02 260);
+  --accent: oklch(0.55 0.18 185);
+  --accent-foreground: oklch(0.98 0.01 260);
+  --destructive: oklch(0.50 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 260);
+  --border: oklch(0.88 0.01 260);
+  --input: oklch(0.94 0.01 260);
+  --ring: oklch(0.55 0.18 185);
+  --chart-1: oklch(0.55 0.18 185);
+  --chart-2: oklch(0.55 0.20 160);
+  --chart-3: oklch(0.60 0.18 85);
+  --chart-4: oklch(0.55 0.22 30);
+  --chart-5: oklch(0.50 0.22 25);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.96 0.01 260);
+  --sidebar-foreground: oklch(0.15 0.02 260);
+  --sidebar-primary: oklch(0.55 0.18 185);
+  --sidebar-primary-foreground: oklch(0.98 0.01 260);
+  --sidebar-accent: oklch(0.92 0.01 260);
+  --sidebar-accent-foreground: oklch(0.15 0.02 260);
+  --sidebar-border: oklch(0.88 0.01 260);
+  --sidebar-ring: oklch(0.55 0.18 185);
+  
+  /* Custom semantic colors */
+  --success: oklch(0.55 0.20 160);
+  --success-foreground: oklch(0.98 0.01 260);
+  --warning: oklch(0.70 0.18 85);
+  --warning-foreground: oklch(0.15 0.02 260);
+}
+
+/* Dark Mode - Deep Navy Executive Theme */
+.dark {
   --background: oklch(0.13 0.02 260);
   --foreground: oklch(0.95 0.01 260);
   --card: oklch(0.16 0.02 260);
@@ -29,7 +77,6 @@
   --chart-3: oklch(0.75 0.16 85);
   --chart-4: oklch(0.65 0.20 30);
   --chart-5: oklch(0.55 0.22 25);
-  --radius: 0.5rem;
   --sidebar: oklch(0.11 0.02 260);
   --sidebar-foreground: oklch(0.95 0.01 260);
   --sidebar-primary: oklch(0.72 0.15 185);
@@ -47,8 +94,8 @@
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: var(--font-poppins), 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', ui-monospace, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -96,6 +143,60 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-normal;
+    font-family: var(--font-poppins), 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  }
+  
+  /* Headings - Bold weight */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+  
+  h1 {
+    @apply text-3xl md:text-4xl font-bold;
+  }
+  
+  h2 {
+    @apply text-2xl md:text-3xl font-bold;
+  }
+  
+  h3 {
+    @apply text-xl md:text-2xl font-semibold;
+  }
+  
+  h4 {
+    @apply text-lg md:text-xl font-semibold;
+  }
+  
+  /* Subtext and muted text - Lighter weight */
+  .text-muted-foreground,
+  .text-muted,
+  small,
+  .subtext {
+    @apply font-light;
+  }
+  
+  /* Card titles */
+  [class*="card-title"],
+  .card-title {
+    @apply font-semibold;
+  }
+  
+  /* Labels and small text */
+  label,
+  .label {
+    @apply font-medium text-sm;
+  }
+  
+  /* Table headers */
+  th {
+    @apply font-semibold;
+  }
+  
+  /* Descriptions and helper text */
+  [class*="description"],
+  .description,
+  .helper-text {
+    @apply font-light text-muted-foreground;
   }
 }

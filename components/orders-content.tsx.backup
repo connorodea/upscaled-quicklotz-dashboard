@@ -1,0 +1,245 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { DataTable, type Column } from "@/components/data-table"
+import { StatusBadge } from "@/components/status-badge"
+import { OrderDetailDrawer } from "@/components/order-detail-drawer"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Search, Filter, Download } from "lucide-react"
+
+interface Order {
+  id: string
+  date: string
+  orderId: string
+  status: string
+  shipTo: string
+  totalAllIn: number
+  totalMSRP: number
+  percentOfMSRP: number
+  totalItems: number
+  totalPallets: number
+  trackingStatus: string
+  carrier?: string
+  trackingNumber?: string
+  eta?: string
+}
+
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value)
+
+const formatNumber = (value: number) =>
+  new Intl.NumberFormat("en-US").format(value)
+
+export function OrdersContent() {
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [trackingFilter, setTrackingFilter] = useState<string>("all")
+  const [searchQuery, setSearchQuery] = useState("")
+
+  useEffect(() => {
+    fetch("/api/orders")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.orders) {
+          setOrders(data.orders)
+        }
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error("Failed to fetch orders:", err)
+        setLoading(false)
+      })
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-muted-foreground">Loading orders...</p>
+      </div>
+    )
+  }
+
+  const filteredOrders = orders.filter((order) => {
+    const matchesStatus = statusFilter === "all" || order.status === statusFilter
+    const matchesTracking = trackingFilter === "all" || order.trackingStatus === trackingFilter
+    const matchesSearch =
+      searchQuery === "" ||
+      order.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.shipTo.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesStatus && matchesTracking && matchesSearch
+  })
+
+  const columns: Column<Order>[] = [
+    {
+      key: "date",
+      header: "Date",
+      render: (value) =>
+        new Date(value as string).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+      className: "text-muted-foreground",
+    },
+    { key: "orderId", header: "Order ID", className: "font-mono text-primary" },
+    {
+      key: "status",
+      header: "Status",
+      render: (value) => (
+        <StatusBadge
+          status={value as string}
+          type={
+            value === "Delivered"
+              ? "success"
+              : value === "Shipped"
+                ? "info"
+                : value === "Processing"
+                  ? "warning"
+                  : "neutral"
+          }
+        />
+      ),
+    },
+    { key: "shipTo", header: "Ship To" },
+    {
+      key: "totalAllIn",
+      header: "All-in Cost",
+      render: (value) => formatCurrency(value as number),
+      className: "font-mono text-right",
+    },
+    {
+      key: "totalMSRP",
+      header: "MSRP",
+      render: (value) => formatCurrency(value as number),
+      className: "font-mono text-right",
+    },
+    {
+      key: "percentOfMSRP",
+      header: "% of MSRP",
+      render: (value) => (
+        <span className="text-primary">{(value as number).toFixed(1)}%</span>
+      ),
+      className: "font-mono text-right",
+    },
+    {
+      key: "totalItems",
+      header: "Items",
+      render: (value) => formatNumber(value as number),
+      className: "text-right",
+    },
+    {
+      key: "totalPallets",
+      header: "Pallets",
+      render: (value) => formatNumber(value as number),
+      className: "text-right",
+    },
+    {
+      key: "trackingStatus",
+      header: "Tracking",
+      render: (value) => (
+        <StatusBadge
+          status={value as string}
+          type={
+            value === "Delivered"
+              ? "success"
+              : value === "In Transit"
+                ? "info"
+                : value === "Out for Delivery"
+                  ? "warning"
+                  : "neutral"
+          }
+        />
+      ),
+    },
+  ]
+
+  const handleRowClick = (order: Order) => {
+    setSelectedOrder(order)
+  }
+
+  return (
+    <>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Orders</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Manage and track all sourcing orders
+            </p>
+          </div>
+          <Button variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="relative flex-1 min-w-[250px] max-w-md">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search orders..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-input border-border"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[140px] bg-input border-border">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="Processing">Processing</SelectItem>
+                <SelectItem value="Shipped">Shipped</SelectItem>
+                <SelectItem value="Delivered">Delivered</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={trackingFilter} onValueChange={setTrackingFilter}>
+              <SelectTrigger className="w-[160px] bg-input border-border">
+                <SelectValue placeholder="Tracking" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Tracking</SelectItem>
+                <SelectItem value="Pending Pickup">Pending Pickup</SelectItem>
+                <SelectItem value="In Transit">In Transit</SelectItem>
+                <SelectItem value="Out for Delivery">Out for Delivery</SelectItem>
+                <SelectItem value="Delivered">Delivered</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="text-sm text-muted-foreground">
+          Showing <span className="font-medium text-foreground">{filteredOrders.length}</span> of{" "}
+          <span className="font-medium text-foreground">{orders.length}</span> orders
+        </div>
+
+        <DataTable columns={columns} data={filteredOrders} onRowClick={handleRowClick} />
+      </div>
+
+      <OrderDetailDrawer
+        order={selectedOrder}
+        open={!!selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+      />
+    </>
+  )
+}

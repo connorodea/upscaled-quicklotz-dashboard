@@ -1,12 +1,29 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { KPICard } from "@/components/kpi-card"
 import { StatusBadge } from "@/components/status-badge"
 import { DataTable, type Column } from "@/components/data-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { aggregateMetrics, sparklineData, orders } from "@/lib/mock-data"
-import { RefreshCw } from "lucide-react"
+import { RefreshCw, DollarSign, Package, TrendingUp, BarChart3 } from "lucide-react"
+
+interface Order {
+  id: string
+  date: string
+  orderId: string
+  status: string
+  shipTo: string
+  totalAllIn: number
+  totalMSRP: number
+  percentOfMSRP: number
+  totalItems: number
+  totalPallets: number
+  trackingStatus: string
+  carrier?: string
+  trackingNumber?: string
+  eta?: string
+}
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", {
@@ -18,8 +35,6 @@ const formatCurrency = (value: number) =>
 
 const formatNumber = (value: number) =>
   new Intl.NumberFormat("en-US").format(value)
-
-const topOrders = orders.sort((a, b) => b.totalMSRP - a.totalMSRP).slice(0, 5)
 
 function ChartPlaceholder() {
   return (
@@ -52,119 +67,189 @@ const OrderStatusChart = dynamic(
   { ssr: false, loading: () => <ChartPlaceholder /> }
 )
 
-const topOrderColumns: Column<(typeof topOrders)[0]>[] = [
-  { key: "orderId", header: "Order ID", className: "font-mono text-primary" },
-  {
-    key: "totalMSRP",
-    header: "Total MSRP",
-    render: (value) => formatCurrency(value as number),
-    className: "font-mono text-right",
-  },
-  {
-    key: "totalAllIn",
-    header: "All-in",
-    render: (value) => formatCurrency(value as number),
-    className: "font-mono text-right",
-  },
-  {
-    key: "percentOfMSRP",
-    header: "% of MSRP",
-    render: (value) => `${(value as number).toFixed(1)}%`,
-    className: "font-mono text-right",
-  },
-  {
-    key: "status",
-    header: "Status",
-    render: (value) => (
-      <StatusBadge
-        status={value as string}
-        type={
-          value === "Delivered"
-            ? "success"
-            : value === "Shipped"
-              ? "info"
-              : value === "Processing"
-                ? "warning"
-                : "neutral"
-        }
-      />
-    ),
-  },
-]
-
 export function DashboardContent() {
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+
+  const fetchData = () => {
+    setRefreshing(true)
+    fetch("/api/orders")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.orders) {
+          setOrders(data.orders)
+        }
+        setLoading(false)
+        setRefreshing(false)
+      })
+      .catch((err) => {
+        console.error("Failed to fetch orders:", err)
+        setLoading(false)
+        setRefreshing(false)
+      })
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const handleRefresh = () => {
+    fetchData()
+    // Trigger a full page refresh to reload all charts
+    window.location.reload()
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-muted-foreground">Loading dashboard...</p>
+      </div>
+    )
+  }
+
+  // Calculate aggregate metrics
+  const totalMSRP = orders.reduce((sum, order) => sum + order.totalMSRP, 0)
+  const totalAllIn = orders.reduce((sum, order) => sum + order.totalAllIn, 0)
+  const totalItems = orders.reduce((sum, order) => sum + order.totalItems, 0)
+  const totalPallets = orders.reduce((sum, order) => sum + order.totalPallets, 0)
+  const avgPercentOfMSRP = totalMSRP > 0 ? (totalAllIn / totalMSRP) * 100 : 0
+  
+  // Calculate profit scenarios
+  const profit20Pct = (totalMSRP * 0.20) - totalAllIn
+  const profit25Pct = (totalMSRP * 0.25) - totalAllIn
+  const profit30Pct = (totalMSRP * 0.30) - totalAllIn
+
+  const topOrders = [...orders].sort((a, b) => b.totalMSRP - a.totalMSRP).slice(0, 5)
+
+  const topOrderColumns: Column<Order>[] = [
+    { key: "orderId", header: "Order ID", className: "font-mono text-primary" },
+    {
+      key: "totalMSRP",
+      header: "Total MSRP",
+      render: (value) => formatCurrency(value as number),
+      className: "font-mono text-right",
+    },
+    {
+      key: "totalAllIn",
+      header: "All-in",
+      render: (value) => formatCurrency(value as number),
+      className: "font-mono text-right",
+    },
+    {
+      key: "percentOfMSRP",
+      header: "% of MSRP",
+      render: (value) => `${(value as number).toFixed(1)}%`,
+      className: "font-mono text-right",
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (value) => (
+        <StatusBadge
+          status={value as string}
+          type={
+            value === "Delivered"
+              ? "success"
+              : value === "Shipped"
+                ? "info"
+                : value === "Processing"
+                  ? "warning"
+                  : "neutral"
+          }
+        />
+      ),
+    },
+  ]
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Executive Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Real-time overview of sourcing operations
+            Real-time sourcing metrics and analytics
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <RefreshCw className="h-3 w-3" />
-          <span>Last synced 2 minutes ago</span>
-        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
+        >
+          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </button>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
+      {/* Portfolio Summary Banner */}
+      <Card className="border-2 border-primary bg-primary/5">
+        <CardContent className="py-6">
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Total MSRP</p>
+              <p className="text-2xl font-bold text-foreground">{formatCurrency(totalMSRP)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Total All-in Cost</p>
+              <p className="text-2xl font-bold text-destructive">-{formatCurrency(totalAllIn)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Avg COGS %</p>
+              <p className="text-2xl font-bold text-foreground">{avgPercentOfMSRP.toFixed(1)}%</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Total Items</p>
+              <p className="text-2xl font-bold text-foreground">{formatNumber(totalItems)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Total Pallets</p>
+              <p className="text-2xl font-bold text-foreground">{formatNumber(totalPallets)}</p>
+            </div>
+            <div className="text-center border-l-2 border-primary pl-6">
+              <p className="text-sm text-muted-foreground mb-1">PROFIT @ 25%</p>
+              <p className="text-3xl font-bold text-primary">{formatCurrency(profit25Pct)}</p>
+              <p className="text-xs text-muted-foreground mt-1">{orders.length} orders</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Total MSRP"
-          value={formatCurrency(aggregateMetrics.totalMSRP)}
-          delta={8.2}
-          sparklineData={sparklineData.msrp}
+          value={formatCurrency(totalMSRP)}
+          icon={DollarSign}
         />
         <KPICard
-          title="Total All-in (COGS)"
-          value={formatCurrency(aggregateMetrics.totalAllIn)}
-          delta={5.4}
-          sparklineData={sparklineData.allIn}
+          title="Total All-in"
+          value={formatCurrency(totalAllIn)}
+          icon={TrendingUp}
         />
         <KPICard
-          title="Blended % of MSRP"
-          value={`${aggregateMetrics.blendedPercentOfMSRP.toFixed(1)}%`}
-          delta={-0.8}
-        />
-        <KPICard
-          title="Orders"
-          value={formatNumber(aggregateMetrics.ordersCount)}
-          delta={16.7}
-        />
-        <KPICard
-          title="Total Pallets"
-          value={formatNumber(aggregateMetrics.totalPallets)}
-          delta={12.3}
-          sparklineData={sparklineData.pallets}
+          title="Avg % of MSRP"
+          value={`${avgPercentOfMSRP.toFixed(1)}%`}
+          icon={BarChart3}
         />
         <KPICard
           title="Total Items"
-          value={formatNumber(aggregateMetrics.totalItems)}
-          delta={9.1}
-          sparklineData={sparklineData.items}
+          value={formatNumber(totalItems)}
+          icon={Package}
         />
       </div>
 
-      {/* Charts Row 1 */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <RecoveryScenariosChart />
-        <CategoryMixChart />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <RecoveryScenariosChart key={refreshing ? 'refresh-1' : 'normal-1'} />
+        <CategoryMixChart key={refreshing ? 'refresh-2' : 'normal-2'} />
       </div>
 
-      {/* Charts Row 2 */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <OrdersOverTimeChart />
-        <OrderStatusChart />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <OrdersOverTimeChart key={refreshing ? 'refresh-3' : 'normal-3'} />
+        <OrderStatusChart key={refreshing ? 'refresh-4' : 'normal-4'} />
       </div>
 
-      {/* Top Orders Table */}
       <Card className="border-border bg-card">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold text-card-foreground">
-            Top Orders by MSRP
-          </CardTitle>
+        <CardHeader>
+          <CardTitle className="text-foreground">Top Orders by MSRP</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable columns={topOrderColumns} data={topOrders} />

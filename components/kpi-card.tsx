@@ -14,6 +14,7 @@ interface KPICardProps {
   value: string
   delta?: number
   deltaLabel?: string
+  subtitle?: string
   sparklineData?: number[]
   prefix?: string
   suffix?: string
@@ -25,6 +26,7 @@ export function KPICard({
   value,
   delta,
   deltaLabel = "vs last period",
+  subtitle,
   sparklineData,
   className,
 }: KPICardProps) {
@@ -38,6 +40,9 @@ export function KPICard({
         <div className="flex-1">
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
           <p className="mt-2 font-mono text-2xl font-bold text-card-foreground">{value}</p>
+          {subtitle && (
+            <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
+          )}
           {delta !== undefined && (
             <div className={cn("mt-2 flex items-center gap-1 text-xs", deltaColor)}>
               <DeltaIcon className="h-3 w-3" />
