@@ -17,6 +17,7 @@ import {
 import { Search, Filter, Loader2 } from "lucide-react"
 import { InvoicesSkeleton } from "@/components/skeletons"
 import { ExportButton } from "@/components/export-button"
+import { DateRangePicker, useDateRange, type DateRange } from "@/components/date-range-picker"
 import { formatCurrencyExport, formatDateExport } from "@/lib/export"
 import { Button } from "@/components/ui/button"
 
@@ -77,6 +78,7 @@ export function InvoicesContent() {
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const { dateRange, setDateRange } = useDateRange()
   const [updatingInvoice, setUpdatingInvoice] = useState<string | null>(null)
 
   const fetchInvoices = () => {
@@ -143,6 +145,18 @@ export function InvoicesContent() {
       searchQuery === "" ||
       invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       invoice.orderId.toLowerCase().includes(searchQuery.toLowerCase())
+    
+    // Date filtering
+    if (dateRange.from || dateRange.to) {
+      const invoiceDate = new Date(invoice.invoiceDate.split('/').reverse().join('-'))
+      if (dateRange.from && invoiceDate < dateRange.from) return false
+      if (dateRange.to) {
+        const endOfDay = new Date(dateRange.to)
+        endOfDay.setHours(23, 59, 59, 999)
+        if (invoiceDate > endOfDay) return false
+      }
+    }
+    
     return matchesStatus && matchesSearch
   })
 
@@ -287,6 +301,10 @@ export function InvoicesContent() {
             className="pl-9 bg-input border-border"
           />
         </div>
+        <DateRangePicker
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+        />
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <Select value={statusFilter} onValueChange={setStatusFilter}>

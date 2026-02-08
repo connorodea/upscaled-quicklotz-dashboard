@@ -26,6 +26,7 @@ import {
 } from "lucide-react"
 import { OrdersSkeleton } from "@/components/skeletons"
 import { ExportButton } from "@/components/export-button"
+import { DateRangePicker, useDateRange } from "@/components/date-range-picker"
 import { formatCurrencyExport, formatDateExport, formatNumberExport, formatPercentExport } from "@/lib/export"
 import {
   BarChart,
@@ -109,6 +110,7 @@ export function OrdersContent() {
   const [refreshing, setRefreshing] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const { dateRange, setDateRange, filterByDateRange } = useDateRange()
   const [expandedOrders, setExpandedOrders] = useState<string[]>([])
   const [lineItemsCache, setLineItemsCache] = useState<Record<string, LineItem[]>>({})
   const [loadingLineItems, setLoadingLineItems] = useState<Record<string, boolean>>({})
@@ -164,7 +166,7 @@ export function OrdersContent() {
     return <OrdersSkeleton />
   }
 
-  const filteredOrders = orders.filter((order) => {
+  const filteredOrders = filterByDateRange(orders).filter((order) => {
     const matchesStatus = statusFilter === "all" || order.status === statusFilter
     const matchesSearch =
       searchQuery === "" ||
@@ -307,6 +309,10 @@ export function OrdersContent() {
               className="pl-9"
             />
           </div>
+          <DateRangePicker
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+          />
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Filter by status" />
