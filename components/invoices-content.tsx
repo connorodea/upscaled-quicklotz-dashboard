@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Search, Filter, Download, Loader2 } from "lucide-react"
+import { InvoicesSkeleton } from "@/components/skeletons"
 import { Button } from "@/components/ui/button"
 
 interface Invoice {
@@ -131,11 +132,7 @@ export function InvoicesContent() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Loading invoices...</p>
-      </div>
-    )
+    return <InvoicesSkeleton />
   }
 
   const filteredInvoices = invoices.filter((invoice) => {

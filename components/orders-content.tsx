@@ -24,6 +24,7 @@ import {
   ChevronRight,
   Truck
 } from "lucide-react"
+import { OrdersSkeleton } from "@/components/skeletons"
 import {
   BarChart,
   Bar,
@@ -158,11 +159,7 @@ export function OrdersContent() {
   }, [])
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Loading orders...</p>
-      </div>
-    )
+    return <OrdersSkeleton />
   }
 
   const filteredOrders = orders.filter((order) => {

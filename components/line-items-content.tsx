@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Search, Download, RefreshCw, Package, DollarSign, TrendingUp, ShoppingCart } from "lucide-react"
+import { ProjectionsSkeleton } from "@/components/skeletons"
 import {
   BarChart,
   Bar,
@@ -160,11 +161,7 @@ export function LineItemsContent() {
 
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Loading master manifest...</p>
-      </div>
-    )
+    return <ProjectionsSkeleton />
   }
 
   const filteredItems = items.filter((item) => {

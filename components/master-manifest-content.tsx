@@ -27,6 +27,7 @@ import {
   Layers,
   List,
 } from "lucide-react"
+import { ProjectionsSkeleton } from "@/components/skeletons"
 
 // ---- Lot-level types (existing) ----
 interface LineItem {
@@ -306,11 +307,7 @@ export function MasterManifestContent() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Loading master manifest...</p>
-      </div>
-    )
+    return <ProjectionsSkeleton />
   }
 
   return (

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { KPICard } from "@/components/kpi-card"
 import { DataTable, type Column } from "@/components/data-table"
 import { TrendingUp, TrendingDown, DollarSign } from "lucide-react"
+import { ProjectionsSkeleton } from "@/components/skeletons"
 import {
   LineChart,
   Line,
@@ -73,11 +74,7 @@ export function ProjectionsContent() {
   }, [])
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Loading projections...</p>
-      </div>
-    )
+    return <ProjectionsSkeleton />
   }
 
   // Calculate actual metrics

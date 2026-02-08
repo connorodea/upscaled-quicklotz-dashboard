@@ -7,6 +7,7 @@ import { DataTable, type Column } from "@/components/data-table"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { TrendingUp, DollarSign, Package, Calendar, RefreshCw, Clock, Banknote } from "lucide-react"
+import { WeeklySummariesSkeleton } from "@/components/skeletons"
 import {
   LineChart,
   Line,
@@ -83,11 +84,7 @@ export function WeeklySummariesContent() {
   }, [])
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Loading weekly summaries...</p>
-      </div>
-    )
+    return <WeeklySummariesSkeleton />
   }
 
   // Calculate totals and averages

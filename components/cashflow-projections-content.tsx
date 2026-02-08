@@ -6,6 +6,7 @@ import { KPICard } from "@/components/kpi-card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { TrendingUp, DollarSign, Wallet, ArrowUpRight, ArrowDownRight, RefreshCw, Clock, Target } from "lucide-react"
+import { ProjectionsSkeleton } from "@/components/skeletons"
 import {
   LineChart,
   Line,
@@ -83,11 +84,7 @@ export function CashflowProjectionsContent() {
   }, [])
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Loading cashflow projections...</p>
-      </div>
-    )
+    return <ProjectionsSkeleton />
   }
 
   // Calculate actuals from orders

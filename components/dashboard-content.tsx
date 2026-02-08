@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/status-badge"
 import { DataTable, type Column } from "@/components/data-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RefreshCw, DollarSign, Package, TrendingUp, BarChart3 } from "lucide-react"
+import { DashboardSkeleton } from "@/components/skeletons"
 
 interface Order {
   id: string
@@ -101,11 +102,7 @@ export function DashboardContent() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Loading dashboard...</p>
-      </div>
-    )
+    return <DashboardSkeleton />
   }
 
   // Calculate aggregate metrics
