@@ -7,6 +7,7 @@ import { DataTable, type Column } from "@/components/data-table"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { TrendingUp, DollarSign, Gavel, Percent } from "lucide-react"
+import { ProjectionsSkeleton } from "@/components/skeletons"
 import {
   LineChart,
   Line,
@@ -114,11 +115,7 @@ export function AuctionProjectionsContent() {
   }, [])
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Loading auction projections...</p>
-      </div>
-    )
+    return <ProjectionsSkeleton />
   }
 
   const totalMSRP = orders.reduce((sum, order) => sum + order.totalMSRP, 0)

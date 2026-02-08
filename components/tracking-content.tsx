@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Search, Filter } from "lucide-react"
+import { TrackingSkeleton } from "@/components/skeletons"
 
 interface Order {
   id: string
@@ -57,11 +58,7 @@ export function TrackingContent() {
   }, [])
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Loading tracking information...</p>
-      </div>
-    )
+    return <TrackingSkeleton />
   }
 
   const carriers = [...new Set(orders.map((order) => order.carrier).filter(Boolean))]
