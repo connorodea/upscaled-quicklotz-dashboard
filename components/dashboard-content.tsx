@@ -1,13 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import dynamic from "next/dynamic"
 import { KPICard } from "@/components/kpi-card"
 import { StatusBadge } from "@/components/status-badge"
 import { DataTable, type Column } from "@/components/data-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { RefreshCw, DollarSign, Package, TrendingUp, BarChart3 } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 import { DashboardSkeleton } from "@/components/skeletons"
+import { ComparisonPicker, useComparison } from "@/components/comparison-picker"
+import { getComparisonRanges, filterByDateRange, calculateDelta, type ComparisonPeriod } from "@/lib/comparison"
 
 interface Order {
   id: string
@@ -72,6 +74,7 @@ export function DashboardContent() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const { comparisonPeriod, setComparisonPeriod } = useComparison("week")
 
   const fetchData = () => {
     setRefreshing(true)
@@ -111,11 +114,42 @@ export function DashboardContent() {
   const totalItems = orders.reduce((sum, order) => sum + order.totalItems, 0)
   const totalPallets = orders.reduce((sum, order) => sum + order.totalPallets, 0)
   const avgPercentOfMSRP = totalMSRP > 0 ? (totalAllIn / totalMSRP) * 100 : 0
-  
+
   // Calculate profit scenarios
   const profit20Pct = (totalMSRP * 0.20) - totalAllIn
   const profit25Pct = (totalMSRP * 0.25) - totalAllIn
   const profit30Pct = (totalMSRP * 0.30) - totalAllIn
+
+  // Comparison calculations
+  const comparisonData = useMemo(() => {
+    const ranges = getComparisonRanges(comparisonPeriod)
+    if (!ranges) return null
+
+    const currentOrders = filterByDateRange(orders, ranges.current)
+    const previousOrders = filterByDateRange(orders, ranges.previous)
+
+    const currentMSRP = currentOrders.reduce((sum, o) => sum + o.totalMSRP, 0)
+    const previousMSRP = previousOrders.reduce((sum, o) => sum + o.totalMSRP, 0)
+
+    const currentAllIn = currentOrders.reduce((sum, o) => sum + o.totalAllIn, 0)
+    const previousAllIn = previousOrders.reduce((sum, o) => sum + o.totalAllIn, 0)
+
+    const currentItems = currentOrders.reduce((sum, o) => sum + o.totalItems, 0)
+    const previousItems = previousOrders.reduce((sum, o) => sum + o.totalItems, 0)
+
+    const currentPallets = currentOrders.reduce((sum, o) => sum + o.totalPallets, 0)
+    const previousPallets = previousOrders.reduce((sum, o) => sum + o.totalPallets, 0)
+
+    return {
+      label: ranges.label,
+      msrpDelta: calculateDelta(currentMSRP, previousMSRP),
+      allInDelta: calculateDelta(currentAllIn, previousAllIn),
+      itemsDelta: calculateDelta(currentItems, previousItems),
+      palletsDelta: calculateDelta(currentPallets, previousPallets),
+      currentOrders: currentOrders.length,
+      previousOrders: previousOrders.length,
+    }
+  }, [orders, comparisonPeriod])
 
   const topOrders = [...orders].sort((a, b) => b.totalMSRP - a.totalMSRP).slice(0, 5)
 
@@ -168,14 +202,20 @@ export function DashboardContent() {
             Real-time sourcing metrics and analytics
           </p>
         </div>
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
-        >
-          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-          {refreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
+        <div className="flex items-center gap-3">
+          <ComparisonPicker
+            value={comparisonPeriod}
+            onChange={setComparisonPeriod}
+          />
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
       </div>
 
       {/* Portfolio Summary Banner */}
@@ -215,22 +255,24 @@ export function DashboardContent() {
         <KPICard
           title="Total MSRP"
           value={formatCurrency(totalMSRP)}
-          icon={DollarSign}
+          delta={comparisonData?.msrpDelta}
+          deltaLabel={comparisonData?.label}
         />
         <KPICard
           title="Total All-in"
           value={formatCurrency(totalAllIn)}
-          icon={TrendingUp}
+          delta={comparisonData?.allInDelta}
+          deltaLabel={comparisonData?.label}
         />
         <KPICard
           title="Avg % of MSRP"
           value={`${avgPercentOfMSRP.toFixed(1)}%`}
-          icon={BarChart3}
         />
         <KPICard
           title="Total Items"
           value={formatNumber(totalItems)}
-          icon={Package}
+          delta={comparisonData?.itemsDelta}
+          deltaLabel={comparisonData?.label}
         />
       </div>
 
