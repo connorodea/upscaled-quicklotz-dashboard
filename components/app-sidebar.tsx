@@ -27,6 +27,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { SyncStatusCompact } from "@/components/sync-status"
 
 const mainNavItems = [
   { href: "/", label: "Executive Dashboard", icon: LayoutDashboard },
@@ -186,13 +187,7 @@ export function AppSidebar() {
               <span className="text-xs text-muted-foreground">Theme</span>
               <ThemeToggle />
             </div>
-            <div className="rounded-md bg-sidebar-accent p-3">
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-success" />
-                <span className="text-xs text-muted-foreground">Data synced</span>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">Last update: 2 min ago</p>
-            </div>
+            <SyncStatusCompact />
           </div>
         </div>
       </aside>
