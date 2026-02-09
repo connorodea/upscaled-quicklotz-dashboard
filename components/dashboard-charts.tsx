@@ -44,7 +44,7 @@ export function RecoveryScenariosChart() {
           const totalMSRP = result.orders.reduce((sum: number, order: any) => sum + order.totalMSRP, 0)
           const totalAllIn = result.orders.reduce((sum: number, order: any) => sum + order.totalAllIn, 0)
 
-          const scenarios = [15, 18, 20, 25].map((rate) => {
+          const scenarios = [13, 14, 15, 16].map((rate) => {
             const expectedRecovery = totalMSRP * (rate / 100)
             const grossProfit = expectedRecovery - totalAllIn
             return {
@@ -63,7 +63,7 @@ export function RecoveryScenariosChart() {
     <Card className="border-border bg-card">
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-semibold text-card-foreground">
-          Recovery Scenarios (15% - 25%)
+          Recovery Scenarios (13% - 16%)
         </CardTitle>
       </CardHeader>
       <CardContent>

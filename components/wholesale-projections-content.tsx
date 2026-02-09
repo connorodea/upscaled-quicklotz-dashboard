@@ -61,8 +61,8 @@ interface WeeklyScenario {
   netProfitAt12: number
   netProfitAt15: number
   netProfitAt18: number
-  netProfitAt20: number
-  netProfitAt25: number
+  netProfitAt13: number
+  netProfitAt15: number
 }
 
 interface Settings {
@@ -153,8 +153,8 @@ export function WholesaleProjectionsContent() {
         netProfitAt12: calcNetProfit(0.12),
         netProfitAt15: calcNetProfit(0.15),
         netProfitAt18: calcNetProfit(0.18),
-        netProfitAt20: calcNetProfit(0.20),
-        netProfitAt25: calcNetProfit(0.25),
+        netProfitAt13: calcNetProfit(0.13),
+        netProfitAt15: calcNetProfit(0.15),
       })
     }
 
@@ -171,8 +171,8 @@ export function WholesaleProjectionsContent() {
     profit12: s.netProfitAt12,
     profit15: s.netProfitAt15,
     profit18: s.netProfitAt18,
-    profit20: s.netProfitAt20,
-    profit25: s.netProfitAt25,
+    profit20: s.netProfitAt13,
+    profit25: s.netProfitAt15,
   }))
 
   // Recovery scenarios for selected weekly MSRP
@@ -306,8 +306,8 @@ export function WholesaleProjectionsContent() {
       className: "font-mono text-right",
     },
     {
-      key: "netProfitAt20",
-      header: "Net Profit @ 20%",
+      key: "netProfitAt13",
+      header: "Net Profit @ 13%",
       render: (value) => {
         const profit = value as number
         return (
@@ -319,8 +319,8 @@ export function WholesaleProjectionsContent() {
       className: "font-mono text-right",
     },
     {
-      key: "netProfitAt25",
-      header: "Net Profit @ 25%",
+      key: "netProfitAt15",
+      header: "Net Profit @ 15%",
       render: (value) => {
         const profit = value as number
         return (
@@ -404,15 +404,15 @@ export function WholesaleProjectionsContent() {
             </div>
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-1">Revenue @ 22%</p>
-              <p className="text-2xl font-bold text-foreground">{formatCurrency(monthlyMSRP * 0.22)}</p>
+              <p className="text-2xl font-bold text-foreground">{formatCurrency(monthlyMSRP * 0.15)}</p>
             </div>
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-1">Net Profit</p>
-              <p className="text-2xl font-bold text-primary">{formatCurrency((monthlyMSRP * 0.22) - estimatedCOGS)}</p>
+              <p className="text-2xl font-bold text-primary">{formatCurrency((monthlyMSRP * 0.15) - estimatedCOGS)}</p>
             </div>
             <div className="text-center border-l-2 border-primary pl-6">
               <p className="text-sm text-muted-foreground mb-1">YOUR SHARE (50%)</p>
-              <p className="text-3xl font-bold text-primary">{formatCurrency(((monthlyMSRP * 0.22) - estimatedCOGS) / 2)}</p>
+              <p className="text-3xl font-bold text-primary">{formatCurrency(((monthlyMSRP * 0.15) - estimatedCOGS) / 2)}</p>
               <p className="text-xs text-muted-foreground mt-1">@ 22% recovery</p>
             </div>
           </div>
@@ -586,7 +586,7 @@ export function WholesaleProjectionsContent() {
                   strokeWidth={2}
                   dot={{ fill: "oklch(0.72 0.15 185)", strokeWidth: 0, r: 4 }}
                   activeDot={{ r: 6, strokeWidth: 0 }}
-                  name="Net Profit @ 20%"
+                  name="Net Profit @ 13%"
                 />
                 <Line
                   type="monotone"
@@ -595,7 +595,7 @@ export function WholesaleProjectionsContent() {
                   strokeWidth={2}
                   dot={{ fill: "oklch(0.70 0.18 160)", strokeWidth: 0, r: 4 }}
                   activeDot={{ r: 6, strokeWidth: 0 }}
-                  name="Net Profit @ 25%"
+                  name="Net Profit @ 15%"
                 />
               </LineChart>
             </ResponsiveContainer>

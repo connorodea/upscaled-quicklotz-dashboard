@@ -5,7 +5,7 @@ import path from 'path'
 export async function POST(request: NextRequest) {
   try {
     // Path to scraped data file
-    const dataPath = process.env.AVAILABLE_LISTINGS_PATH || '/root/upscaled-tl/data/techliquidators/available_listings.json'
+    const dataPath = process.env.AVAILABLE_LISTINGS_PATH || '/root/upscaled-tl-data/data/techliquidators/available_listings.json'
 
     // Try to read existing scraped data
     let listings = []

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 
-const WEEKLY_REPORT_PATH = "/root/upscaled-tl/data/techliquidators/weekly_report.json";
-const DB_PATH = "/root/upscaled-tl/data/techliquidators/available_msrp_tracking.db";
+const WEEKLY_REPORT_PATH = "/root/upscaled-tl-data/data/techliquidators/weekly_report.json";
+const DB_PATH = "/root/upscaled-tl-data/data/techliquidators/available_msrp_tracking.db";
 
 export const dynamic = "force-dynamic";
 

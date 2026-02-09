@@ -40,10 +40,10 @@ interface WeeklySummary {
 
 interface WeeklyProfit {
   week: string
+  recovery13: number
   recovery15: number
-  recovery20: number
-  recovery25: number
-  recovery30: number
+  recovery16: number
+  recovery18: number
 }
 
 const formatCurrency = (value: number) =>

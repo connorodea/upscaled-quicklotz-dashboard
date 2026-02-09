@@ -83,7 +83,7 @@ export function ProjectionsContent() {
   const avgCogsPercent = totalMSRP > 0 ? totalAllIn / totalMSRP : 0
 
   // Recovery scenarios
-  const recoveryRates = [0.05, 0.10, 0.15, 0.18, 0.20, 0.25, 0.30, 0.35, 0.40]
+  const recoveryRates = [0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18]
   const scenarios: RecoveryScenario[] = recoveryRates.map((rate, index) => {
     const expectedRevenue = totalMSRP * rate
     const grossProfit = expectedRevenue - totalAllIn
@@ -115,7 +115,7 @@ export function ProjectionsContent() {
 
   // Key scenarios for table
   const keyScenarios = scenarios.filter(s =>
-    [0.15, 0.18, 0.20, 0.25, 0.30].includes(s.recoveryRate)
+    [0.12, 0.13, 0.14, 0.15].includes(s.recoveryRate)
   )
 
   const columns: Column<RecoveryScenario>[] = [
@@ -187,12 +187,12 @@ export function ProjectionsContent() {
               <p className="text-2xl font-bold text-foreground">{formatPercent(avgCogsPercent)}</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-1">Profit @ 20%</p>
-              <p className="text-2xl font-bold text-primary">{formatCurrency((totalMSRP * 0.20) - totalAllIn)}</p>
+              <p className="text-sm text-muted-foreground mb-1">Profit @ 12%</p>
+              <p className="text-2xl font-bold text-primary">{formatCurrency((totalMSRP * 0.12) - totalAllIn)}</p>
             </div>
             <div className="text-center border-l-2 border-primary pl-6">
-              <p className="text-sm text-muted-foreground mb-1">PROFIT @ 25%</p>
-              <p className="text-3xl font-bold text-primary">{formatCurrency((totalMSRP * 0.25) - totalAllIn)}</p>
+              <p className="text-sm text-muted-foreground mb-1">PROFIT @ 15%</p>
+              <p className="text-3xl font-bold text-primary">{formatCurrency((totalMSRP * 0.15) - totalAllIn)}</p>
               <p className="text-xs text-muted-foreground mt-1">target recovery</p>
             </div>
           </div>
@@ -435,7 +435,7 @@ export function ProjectionsContent() {
         <Card className="border-border bg-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold text-card-foreground">
-              Target Scenario (20%)
+              Target Scenario (15%)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">

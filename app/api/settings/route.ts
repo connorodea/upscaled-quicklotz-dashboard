@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-const SETTINGS_FILE = "/root/upscaled-tl/data/settings.json";
+const SETTINGS_FILE = "/root/upscaled-tl-data/data/settings.json";
 
 // Default settings
 const DEFAULT_SETTINGS = {

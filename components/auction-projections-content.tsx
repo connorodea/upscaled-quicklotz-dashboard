@@ -57,8 +57,8 @@ interface WeeklyScenario {
   monthlyMSRP: number
   estimatedCOGS: number
   netProfitAt18: number
+  netProfitAt17: number
   netProfitAt20: number
-  netProfitAt25: number
 }
 
 interface Settings {
@@ -143,8 +143,8 @@ export function AuctionProjectionsContent() {
         monthlyMSRP: monthly,
         estimatedCOGS,
         netProfitAt18: calcNetProfit(0.18),
+        netProfitAt17: calcNetProfit(0.17),
         netProfitAt20: calcNetProfit(0.20),
-        netProfitAt25: calcNetProfit(0.25),
       })
     }
     return scenarios
@@ -256,8 +256,8 @@ export function AuctionProjectionsContent() {
       className: "font-mono text-right",
     },
     {
-      key: "netProfitAt20",
-      header: "Net Profit @ 20%",
+      key: "netProfitAt17",
+      header: "Net Profit @ 13%",
       render: (value) => {
         const profit = value as number
         return (
@@ -269,8 +269,8 @@ export function AuctionProjectionsContent() {
       className: "font-mono text-right",
     },
     {
-      key: "netProfitAt25",
-      header: "Net Profit @ 25%",
+      key: "netProfitAt20",
+      header: "Net Profit @ 15%",
       render: (value) => {
         const profit = value as number
         return (
@@ -446,16 +446,16 @@ export function AuctionProjectionsContent() {
             </div>
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-1">Ops Fee (30%)</p>
-              <p className="text-2xl font-bold text-foreground">{formatCurrency(monthlyMSRP * 0.20 * 0.30)}</p>
+              <p className="text-2xl font-bold text-foreground">{formatCurrency(monthlyMSRP * 0.17 * 0.30)}</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-1">Net @ 20%</p>
-              <p className="text-2xl font-bold text-primary">{formatCurrency((monthlyMSRP * 0.20 * 0.70) - estimatedCOGS)}</p>
+              <p className="text-sm text-muted-foreground mb-1">Net @ 13%</p>
+              <p className="text-2xl font-bold text-primary">{formatCurrency((monthlyMSRP * 0.17 * 0.70) - estimatedCOGS)}</p>
             </div>
             <div className="text-center border-l-2 border-primary pl-6">
               <p className="text-sm text-muted-foreground mb-1">YOUR SHARE (50%)</p>
-              <p className="text-3xl font-bold text-primary">{formatCurrency(((monthlyMSRP * 0.20 * 0.70) - estimatedCOGS) / 2)}</p>
-              <p className="text-xs text-muted-foreground mt-1">@ 20% recovery</p>
+              <p className="text-3xl font-bold text-primary">{formatCurrency(((monthlyMSRP * 0.17 * 0.70) - estimatedCOGS) / 2)}</p>
+              <p className="text-xs text-muted-foreground mt-1">@ 17% recovery</p>
             </div>
           </div>
         </CardContent>

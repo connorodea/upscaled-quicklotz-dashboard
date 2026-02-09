@@ -13,7 +13,7 @@ interface SyncStatus {
 
 export async function GET() {
   try {
-    const dataDir = process.env.DATA_DIR || "/root/upscaled-tl-data"
+    const dataDir = process.env.DATA_DIR || "/root/upscaled-tl-data/data"
     const ordersPath = path.join(dataDir, "techliquidators", "orders.json")
 
     let lastSync: string | null = null

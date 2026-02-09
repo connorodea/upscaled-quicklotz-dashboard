@@ -167,7 +167,7 @@ function parseCSV(content: string): any[] {
 export async function GET(request: NextRequest) {
   try {
     const csvPath = process.env.INVOICES_CSV_PATH || path.join(process.cwd(), 'data', 'tl_invoices.csv')
-    const ordersPath = process.env.ORDERS_JSON_PATH || '/root/upscaled-tl/data/techliquidators/orders.json'
+    const ordersPath = process.env.ORDERS_JSON_PATH || '/root/upscaled-tl-data/data/techliquidators/orders.json'
 
     // Read status overrides and order enrichment from PostgreSQL
     const [statusOverrides, orderEnrichment] = await Promise.all([
